@@ -31,6 +31,12 @@ class _WeatherPageState extends State<WeatherPage> {
   List<Hourly>? _hourlyData = [];
   // 加载状态
   bool _isLoading = false;
+  
+  // 实时天气数据的getter
+  Now get now => _nowResponse!.now;
+  
+  // 今日天气详情的getter
+  Daily get dayDetail => _forecastData![0];
 
   // 获取实时天气数据
   Future<void> _fetchWeatherData() async {
@@ -139,8 +145,6 @@ class _WeatherPageState extends State<WeatherPage> {
 
   // 构建天气UI
   Widget _buildWeatherUI() {
-    final now = _nowResponse!.now;
-    final dayDetail = _forecastData![0];
     return Container(
       padding: const EdgeInsets.all(20),
       color: const Color.fromARGB(147, 127, 184, 231),
@@ -148,45 +152,7 @@ class _WeatherPageState extends State<WeatherPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           // 天气图标和温度
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // // 天气图标 (使用占位符，实际项目中可以根据icon值显示对应的图标)
-              // Container(
-              //   width: 80,
-              //   height: 80,
-              //   decoration: BoxDecoration(
-              //     color: Colors.blue.withOpacity(0.2),
-              //     borderRadius: BorderRadius.circular(40),
-              //   ),
-              //   child: Center(
-              //     child: Text(
-              //       now.icon,
-              //       style: const TextStyle(fontSize: 40),
-              //     ),
-              //   ),
-              // ),
-              // 温度
-              Column(
-                children: [
-                  Text(
-                    '${now.temp}°',
-                    style: const TextStyle(
-                      fontSize: 100,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    '${now.text}  ${dayDetail.tempMin}°/ ${dayDetail.tempMax}°',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 24, color: Colors.white),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          _buildNow(),
           const SizedBox(height: 30),
           // 更新时间
           Text(
@@ -196,103 +162,173 @@ class _WeatherPageState extends State<WeatherPage> {
           const SizedBox(height: 30),
 
           // 实时小时天气
-          Container(
-            height: 100,
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: _hourlyData?.length ?? 0,
-              itemBuilder: (context, index) {
-                final hour = _hourlyData![index];
-                return Container(
-                  width: 50,
-                  margin: const EdgeInsets.only(right: 10),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        // 小时时间格式 HH:mm
-                        "${hour.fxTime.substring(11, 13)}:00",
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      // 天气图标 (使用占位符，实际项目中可以根据icon值显示对应的图标)
-                      OnlineWeatherIcon(
-                        iconCode: hour.icon,
-                        size: 20,
-                      ),
-                      
-                      Text(
-                        '${hour.temp}°',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
+          _buildHourly(),
+
+          // 未来七天天气
+          _buildForecast(),
+          const SizedBox(height: 30),
 
           // 天气详情
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              children: [
-                const Text(
-                  '天气详情',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 15),
-
-                // 第一行详情
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildDetailItem('体感温度', '${now.feelsLike}°C'),
-                    _buildDetailItem('湿度', '${now.humidity}%'),
-                  ],
-                ),
-                const SizedBox(height: 15),
-
-                // 第二行详情
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildDetailItem('风向', now.windDir),
-                    _buildDetailItem('风力', '${now.windScale}级'),
-                  ],
-                ),
-                const SizedBox(height: 15),
-
-                // 第三行详情
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildDetailItem('气压', '${now.pressure}hPa'),
-                    _buildDetailItem('能见度', '${now.vis}km'),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          _buildDetail(),
         ],
       ),
     );
   }
 
+  // 当前气温
+  Widget _buildNow(){
+   return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // 天气图标 (使用占位符，实际项目中可以根据icon值显示对应的图标)
+        SizedBox(
+          width: 80,
+          height: 80,
+          child:  OnlineWeatherIcon(
+            iconCode: now.icon,
+            size: 10,
+          ),
+        ),
+        SizedBox(width: 10,),
+        // 温度
+        Column(
+          children: [
+            Text(
+              '${now.temp}°',
+              style: const TextStyle(
+                fontSize: 100,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            Text(
+              '${now.text}  ${dayDetail.tempMin}°/ ${dayDetail.tempMax}°',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 24, color: Colors.white),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+// 实时小时天气
+  Widget _buildHourly(){
+    return   Container(
+      height: 100,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: _hourlyData?.length ?? 0,
+        itemBuilder: (context, index) {
+          final hour = _hourlyData![index];
+          return Container(
+            width: 50,
+            margin: const EdgeInsets.only(right: 10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  // 小时时间格式 HH:mm
+                  "${hour.fxTime.substring(11, 13)}:00",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+                // 天气图标
+                OnlineWeatherIcon(
+                  iconCode: hour.icon,
+                  size: 20,
+                ),
+
+                Text(
+                  '${hour.temp}°',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+  // 未来七天天气
+  Widget _buildForecast(){
+  return  Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.grey.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: List.generate(7, (index) {
+          return Row(
+            children: [
+              Text("123123")
+            ],
+          );
+        }
+        ),
+      ),
+    );
+  }
+// 天气详情
+  Widget _buildDetail(){
+  return  Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.grey.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          const Text(
+            '天气详情',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 15),
+
+          // 第一行详情
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildDetailItem('体感温度', '${now.feelsLike}°C'),
+              _buildDetailItem('湿度', '${now.humidity}%'),
+            ],
+          ),
+          const SizedBox(height: 15),
+
+          // 第二行详情
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildDetailItem('风向', now.windDir),
+              _buildDetailItem('风力', '${now.windScale}级'),
+            ],
+          ),
+          const SizedBox(height: 15),
+
+          // 第三行详情
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildDetailItem('气压', '${now.pressure}hPa'),
+              _buildDetailItem('能见度', '${now.vis}km'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
   // 构建详情项
   Widget _buildDetailItem(String label, String value) {
     return Column(

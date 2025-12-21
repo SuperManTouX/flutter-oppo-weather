@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '北京天气',
+      title: '磨叽天气',
       theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),
       initialRoute: RouteNames.weather,
       onGenerateRoute: AppRoutes.onGenerateRoute,
