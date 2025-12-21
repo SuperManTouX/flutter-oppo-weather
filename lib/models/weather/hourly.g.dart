@@ -16,9 +16,9 @@ Hourly _$HourlyFromJson(Map<String, dynamic> json) => Hourly(
   windScale: json['windScale'] as String,
   windSpeed: json['windSpeed'] as String,
   humidity: json['humidity'] as String,
+  pop: json['pop'] as String,
   precip: json['precip'] as String,
   pressure: json['pressure'] as String,
-  vis: json['vis'] as String,
   cloud: json['cloud'] as String,
   dew: json['dew'] as String,
 );
@@ -33,9 +33,9 @@ Map<String, dynamic> _$HourlyToJson(Hourly instance) => <String, dynamic>{
   'windScale': instance.windScale,
   'windSpeed': instance.windSpeed,
   'humidity': instance.humidity,
+  'pop': instance.pop,
   'precip': instance.precip,
   'pressure': instance.pressure,
-  'vis': instance.vis,
   'cloud': instance.cloud,
   'dew': instance.dew,
 };

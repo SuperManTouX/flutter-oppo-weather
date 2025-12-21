@@ -22,11 +22,9 @@ class QWeatherService {
     // 添加请求拦截器
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        print('请求: ${options.uri}');
         return handler.next(options);
       },
       onResponse: (response, handler) {
-        print('响应: ${response.statusCode} ${response.data}');
         return handler.next(response);
       },
       onError: (DioException e, handler) {
@@ -39,33 +37,23 @@ class QWeatherService {
   // 获取实时天气
   Future<WeatherNowResponse> getWeatherNow({required String location}) async {
     try {
-      print('准备请求实时天气API...');
-      print('请求URL: ${QWeatherConstants.baseUrl}${QWeatherConstants.weatherNow}');
-      print('请求参数: location=$location');
-      print('请求头: ${QWeatherConstants.headers}');
       
       final response = await _dio.get(
         QWeatherConstants.weatherNow,
         queryParameters: {'location': location},
       );
-      
-      print('API请求成功，状态码: ${response.statusCode}');
-      print('响应数据: ${response.data}');
-      
       return WeatherNowResponse.fromJson(response.data);
     } catch (e) {
       print('获取实时天气失败: $e');
       if (e is DioException) {
         print('Dio错误类型: ${e.type}');
         print('错误消息: ${e.message}');
-        print('请求URL: ${e.requestOptions.uri}');
-        print('响应状态码: ${e.response?.statusCode}');
-        print('响应数据: ${e.response?.data}');
-        print('错误堆栈: ${e.stackTrace}');
+        
       }
       rethrow;
     }
   }
+ 
   
   // 获取3天天气预报
   Future<WeatherForecastResponse> getWeather3d({required String location}) async {

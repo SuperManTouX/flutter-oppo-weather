@@ -31,14 +31,15 @@ class Hourly {
   @JsonKey(name: 'humidity')
   final String humidity;
 
+  @JsonKey(name: 'pop')
+  final String pop;
+
   @JsonKey(name: 'precip')
   final String precip;
 
   @JsonKey(name: 'pressure')
   final String pressure;
 
-  @JsonKey(name: 'vis')
-  final String vis;
 
   @JsonKey(name: 'cloud')
   final String cloud;
@@ -56,9 +57,9 @@ class Hourly {
     required this.windScale,
     required this.windSpeed,
     required this.humidity,
+    required this.pop,
     required this.precip,
     required this.pressure,
-    required this.vis,
     required this.cloud,
     required this.dew,
   });

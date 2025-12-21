@@ -14,6 +14,7 @@ class QWeatherConstants {
   
   // API端点
   static const String weatherNow = '/weather/now';
+  static const String weatherHourly = '/weather/24h';
   static const String weather3d = '/weather/3d';
   static const String weather7d = '/weather/7d';
   static const String weather10d = '/weather/10d';
