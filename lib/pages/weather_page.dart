@@ -3,7 +3,7 @@ import 'package:flutter_oppo_weather/services/weather/weather_service.dart';
 import 'package:flutter_oppo_weather/models/weather/weather_models.dart';
 import 'package:flutter_oppo_weather/routes/index.dart';
 import 'package:flutter_oppo_weather/widget/QIcon.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:jiffy/jiffy.dart';
 
 class WeatherPage extends StatefulWidget {
   // 城市位置码参数，默认为北京
@@ -25,16 +25,19 @@ class WeatherPage extends StatefulWidget {
 class _WeatherPageState extends State<WeatherPage> {
   // 实时天气返回体
   WeatherNowResponse? _nowResponse;
+
   // 7天天气数据 [0]是今天的天气
   List<Daily>? _forecastData = [];
+
   // 逐小时天气数据
   List<Hourly>? _hourlyData = [];
+
   // 加载状态
   bool _isLoading = false;
-  
+
   // 实时天气数据的getter
   Now get now => _nowResponse!.now;
-  
+
   // 今日天气详情的getter
   Daily get dayDetail => _forecastData![0];
 
@@ -145,39 +148,52 @@ class _WeatherPageState extends State<WeatherPage> {
 
   // 构建天气UI
   Widget _buildWeatherUI() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      color: const Color.fromARGB(147, 127, 184, 231),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          // 天气图标和温度
-          _buildNow(),
-          const SizedBox(height: 30),
-          // 更新时间
-          Text(
-            '更新时间: ${_formatTime(_nowResponse!.updateTime)}',
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          const SizedBox(height: 30),
-
-          // 实时小时天气
-          _buildHourly(),
-
-          // 未来七天天气
-          _buildForecast(),
-          const SizedBox(height: 30),
-
-          // 天气详情
-          _buildDetail(),
-        ],
+    return RefreshIndicator(
+      onRefresh: () {
+        return Future.wait([
+          _fetchWeatherData(),
+          _fetchWeatherForecast(),
+          _fetchWeather24h(),
+        ]);
+      },
+      child: Container(
+        color: const Color.fromARGB(147, 127, 184, 231),
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.all(20),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  // 天气图标和温度
+                  _buildNow(),
+                  SizedBox(height: 30),
+                  // 更新时间
+                  Text(
+                    textAlign: TextAlign.center,
+                    '更新时间: ${_formatTime(_nowResponse!.updateTime)}',
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  SizedBox(height: 30),
+                  // 实时小时天气
+                  _buildHourly(),
+                  SizedBox(height: 30),
+                  // 未来七天天气
+                  _buildForecast(),
+                  SizedBox(height: 30),
+                  // 天气详情
+                  _buildDetail(),
+                ]),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   // 当前气温
-  Widget _buildNow(){
-   return Row(
+  Widget _buildNow() {
+    return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -185,12 +201,9 @@ class _WeatherPageState extends State<WeatherPage> {
         SizedBox(
           width: 80,
           height: 80,
-          child:  OnlineWeatherIcon(
-            iconCode: now.icon,
-            size: 10,
-          ),
+          child: OnlineWeatherIcon(iconCode: now.icon, size: 10),
         ),
-        SizedBox(width: 10,),
+        SizedBox(width: 10),
         // 温度
         Column(
           children: [
@@ -213,9 +226,9 @@ class _WeatherPageState extends State<WeatherPage> {
     );
   }
 
-// 实时小时天气
-  Widget _buildHourly(){
-    return   Container(
+  // 实时小时天气
+  Widget _buildHourly() {
+    return Container(
       height: 100,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -226,7 +239,8 @@ class _WeatherPageState extends State<WeatherPage> {
         scrollDirection: Axis.horizontal,
         itemCount: _hourlyData?.length ?? 0,
         itemBuilder: (context, index) {
-          final hour = _hourlyData![index];
+          final Hourly hour = _hourlyData![index];
+          final String day = Jiffy.parse(hour.fxTime).format(pattern: "HH:mm");
           return Container(
             width: 50,
             margin: const EdgeInsets.only(right: 10),
@@ -235,17 +249,11 @@ class _WeatherPageState extends State<WeatherPage> {
               children: [
                 Text(
                   // 小时时间格式 HH:mm
-                  "${hour.fxTime.substring(11, 13)}:00",
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+                  "$day",
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 // 天气图标
-                OnlineWeatherIcon(
-                  iconCode: hour.icon,
-                  size: 20,
-                ),
+                OnlineWeatherIcon(iconCode: hour.icon, size: 20),
 
                 Text(
                   '${hour.temp}°',
@@ -261,9 +269,10 @@ class _WeatherPageState extends State<WeatherPage> {
       ),
     );
   }
+
   // 未来七天天气
-  Widget _buildForecast(){
-  return  Container(
+  Widget _buildForecast() {
+    return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.grey.withOpacity(0.1),
@@ -271,19 +280,47 @@ class _WeatherPageState extends State<WeatherPage> {
       ),
       child: Column(
         children: List.generate(7, (index) {
-          return Row(
-            children: [
-              Text("123123")
-            ],
+          final Jiffy dayJ = Jiffy.parse(_forecastData![index].fxDate);
+          final String day = dayJ.format(pattern: "MM月dd日");
+          return SizedBox(
+            height: 40, // 固定行高
+            child: Row(
+              children: [
+                Text(
+                  day,
+                  style: const TextStyle(fontSize: 14, color: Colors.white),
+                ),
+                SizedBox(width: 10),
+                // jiffy计算星期几
+                Text(
+                  getWeekdayText(dayJ),
+                  style: const TextStyle(fontSize: 14, color: Colors.white),
+                ),
+                // 天气图标
+                Expanded(
+                  child: OnlineWeatherIcon(
+                    iconCode: '${_forecastData![index].iconDay}-fill',
+                    size: 20,
+                  ),
+                ),
+                Text(
+                  '${_forecastData![index].tempMin}°/${_forecastData![index].tempMax}°',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           );
-        }
-        ),
+        }),
       ),
     );
   }
-// 天气详情
-  Widget _buildDetail(){
-  return  Container(
+
+  // 天气详情
+  Widget _buildDetail() {
+    return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.grey.withOpacity(0.1),
@@ -329,6 +366,7 @@ class _WeatherPageState extends State<WeatherPage> {
       ),
     );
   }
+
   // 构建详情项
   Widget _buildDetailItem(String label, String value) {
     return Column(
@@ -360,10 +398,26 @@ class _WeatherPageState extends State<WeatherPage> {
   // 格式化时间
   String _formatTime(String timeStr) {
     try {
-      final time = DateTime.parse(timeStr);
-      return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+      return Jiffy.parse(timeStr).format(pattern: 'HH:mm');
     } catch (e) {
       return timeStr;
+    }
+  }
+
+  /// 格式化周几
+  String getWeekdayText(Jiffy targetDate) {
+    Jiffy today = Jiffy.parse(DateTime.now().toString()).startOf(Unit.day);
+    Jiffy target = targetDate.startOf(Unit.day);
+    Jiffy tomorrow = today.add(days: 1).startOf(Unit.day);
+
+    if (target.isSame(today, unit: Unit.day)) {
+      return "今天";
+    } else if (target.isSame(tomorrow, unit: Unit.day)) {
+      return "明天";
+    } else {
+      String fullWeekday = target.format(pattern: "EEEE");
+      // 将"星期"替换为"周"
+      return fullWeekday.replaceFirst("星期", "周");
     }
   }
 }
