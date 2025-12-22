@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_oppo_weather/constants/index.dart';
 import 'package:flutter_oppo_weather/services/weather/weather_service.dart';
 import 'package:flutter_oppo_weather/models/weather/weather_models.dart';
 import 'package:flutter_oppo_weather/routes/index.dart';
@@ -153,6 +154,7 @@ class _WeatherPageState extends State<WeatherPage> {
 
   // 构建天气UI
   Widget _buildWeatherUI() {
+    print(GradientColors.Weather2English[now.text]);
     return RefreshIndicator(
       onRefresh: () {
         return Future.wait([
@@ -161,8 +163,14 @@ class _WeatherPageState extends State<WeatherPage> {
           _fetchWeather24h(),
         ]);
       },
-      child: Container(
-        color: const Color.fromARGB(147, 127, 184, 231),
+      child: Ink(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: GradientColors.Weather2English[now.text] as List<Color>,
+          ),
+        ),
         child: CustomScrollView(
           slivers: [
             SliverPadding(
@@ -250,28 +258,34 @@ class _WeatherPageState extends State<WeatherPage> {
           final Hourly hour = _hourlyData![index];
           final String day = Jiffy.parse(hour.fxTime).format(pattern: "HH:mm");
           return Container(
-            width: 50,
+            width: 80,
             margin: const EdgeInsets.only(right: 10),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  // 小时时间格式 HH:mm
-                  "$day",
-                  style: const TextStyle(fontSize: 14, color: Colors.white),
-                ),
-                // 天气图标
-                QIcon(iconCode: hour.icon, size: 20),
-
-                Text(
-                  '${hour.temp}°',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
+            child: InkWell(
+              onTap: () {
+                print("点击了$day");
+              },
+              borderRadius: BorderRadius.circular(5),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    // 小时时间格式 HH:mm
+                    "$day",
+                    style: const TextStyle(fontSize: 14, color: Colors.white),
                   ),
-                ),
-              ],
+                  // 天气图标
+                  QIcon(iconCode: hour.icon, size: 20),
+
+                  Text(
+                    '${hour.temp}°',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -294,7 +308,9 @@ class _WeatherPageState extends State<WeatherPage> {
             final String day = dayJ.format(pattern: "MM月dd日");
 
             return InkWell(
-              onTap: () {}, // 空的点击事件，启用InkWell效果
+              onTap: () {
+                print("点击了$day");
+              },
               borderRadius: BorderRadius.circular(5),
               child: Container(
                 height: 40, // 固定行高
@@ -566,7 +582,10 @@ class _WeatherPageState extends State<WeatherPage> {
             // 详情项标签
             Text(
               label,
-              style: const TextStyle(fontSize: 14, color: Color.fromARGB(255, 83, 81, 81)),
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color.fromARGB(255, 83, 81, 81),
+              ),
             ),
             // 详情项值
             Text(
