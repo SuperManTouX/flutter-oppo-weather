@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_oppo_weather/constants/theme.dart';
 import 'package:flutter_oppo_weather/routes/index.dart';
 import 'package:jiffy/jiffy.dart';
 
@@ -17,7 +18,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '磨叽天气',
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 31, 209, 25))),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
       initialRoute: RouteNames.weather,
       onGenerateRoute: AppRoutes.onGenerateRoute,
     );
