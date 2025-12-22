@@ -254,7 +254,10 @@ class _WeatherPageState extends State<WeatherPage> {
         itemCount: _hourlyData?.length ?? 0,
         itemBuilder: (context, index) {
           final Hourly hour = _hourlyData![index];
-          final String day = Jiffy.parse(hour.fxTime,pattern: "yyyy-MM-dd'T'HH:mmZ").format(pattern: "HH:mm");
+          final String day = Jiffy.parse(
+            hour.fxTime,
+            pattern: "yyyy-MM-dd'T'HH:mmZ",
+          ).format(pattern: "HH:mm");
           return Material(
             // 透明背景，不影响原有样式
             color: Colors.transparent,
@@ -273,7 +276,7 @@ class _WeatherPageState extends State<WeatherPage> {
                   children: [
                     Text(
                       // 小时时间格式 HH:mm
-                      index==0?"现在":day,
+                      index == 0 ? "现在" : day,
                       style: const TextStyle(fontSize: 14, color: Colors.white),
                     ),
                     // 天气图标
@@ -348,12 +351,16 @@ class _WeatherPageState extends State<WeatherPage> {
                           size: 20,
                         ),
                       ),
-                      Text(
-                        '${_forecastData![index].tempMin}°/${_forecastData![index].tempMax}°',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                      SizedBox(
+                        width: 60,
+                        child: Text(
+                          textAlign: TextAlign.right,
+                          '${_forecastData![index].tempMin}°/${_forecastData![index].tempMax}°',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ],
