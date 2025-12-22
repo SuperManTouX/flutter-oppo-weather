@@ -97,7 +97,6 @@ class _WeatherPageState extends State<WeatherPage> {
       final data = await service.getWeather24h(location: widget.location);
       setState(() {
         _hourlyData = data.hourly;
-        print('获取24小时天气数据: $_hourlyData');
         _isLoading = false;
       });
     } catch (e) {
@@ -154,7 +153,6 @@ class _WeatherPageState extends State<WeatherPage> {
 
   // 构建天气UI
   Widget _buildWeatherUI() {
-    print(GradientColors.Weather2English[now.text]);
     return RefreshIndicator(
       onRefresh: () {
         return Future.wait([
@@ -245,10 +243,10 @@ class _WeatherPageState extends State<WeatherPage> {
   // 实时小时天气
   Widget _buildHourly() {
     return Container(
+      width: double.infinity,
       height: 100,
-      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.1),
+        color: const Color.fromARGB(69, 116, 114, 114),
         borderRadius: BorderRadius.circular(10),
       ),
       child: ListView.builder(
@@ -256,35 +254,41 @@ class _WeatherPageState extends State<WeatherPage> {
         itemCount: _hourlyData?.length ?? 0,
         itemBuilder: (context, index) {
           final Hourly hour = _hourlyData![index];
-          final String day = Jiffy.parse(hour.fxTime).format(pattern: "HH:mm");
-          return Container(
-            width: 80,
-            margin: const EdgeInsets.only(right: 10),
+          final String day = Jiffy.parse(hour.fxTime,pattern: "yyyy-MM-dd'T'HH:mmZ").format(pattern: "HH:mm");
+          return Material(
+            // 透明背景，不影响原有样式
+            color: Colors.transparent,
+            // 圆角与子容器 Container 保持一致，约束水波纹范围
+            borderRadius: BorderRadius.circular(8),
             child: InkWell(
               onTap: () {
                 print("点击了$day");
               },
               borderRadius: BorderRadius.circular(5),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    // 小时时间格式 HH:mm
-                    "$day",
-                    style: const TextStyle(fontSize: 14, color: Colors.white),
-                  ),
-                  // 天气图标
-                  QIcon(iconCode: hour.icon, size: 20),
-
-                  Text(
-                    '${hour.temp}°',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
+              child: Container(
+                width: 80,
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      // 小时时间格式 HH:mm
+                      index==0?"现在":day,
+                      style: const TextStyle(fontSize: 14, color: Colors.white),
                     ),
-                  ),
-                ],
+                    // 天气图标
+                    QIcon(iconCode: hour.icon, size: 20),
+
+                    Text(
+                      '${hour.temp}°',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
