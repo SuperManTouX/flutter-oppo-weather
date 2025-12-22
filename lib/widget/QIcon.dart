@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-class OnlineWeatherIcon extends StatelessWidget {
+class QIcon extends StatelessWidget {
   final String iconCode;
   final double size;
 
-  const OnlineWeatherIcon({
+  const QIcon({
     super.key,
     required this.iconCode,
     this.size = 60,

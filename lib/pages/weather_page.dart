@@ -41,6 +41,11 @@ class _WeatherPageState extends State<WeatherPage> {
   // 今日天气详情的getter
   Daily get dayDetail => _forecastData![0];
 
+  // 获取屏幕宽度
+  double getScreenWidth(BuildContext context) {
+    return MediaQuery.of(context).size.width;
+  }
+
   // 获取实时天气数据
   Future<void> _fetchWeatherData() async {
     setState(() {
@@ -182,6 +187,9 @@ class _WeatherPageState extends State<WeatherPage> {
                   SizedBox(height: 30),
                   // 天气详情
                   _buildDetail(),
+                  SizedBox(height: 30),
+                  // 日出时间
+                  _buildSunrise(),
                 ]),
               ),
             ),
@@ -201,7 +209,7 @@ class _WeatherPageState extends State<WeatherPage> {
         SizedBox(
           width: 80,
           height: 80,
-          child: OnlineWeatherIcon(iconCode: now.icon, size: 10),
+          child: QIcon(iconCode: now.icon, size: 10),
         ),
         SizedBox(width: 10),
         // 温度
@@ -232,7 +240,7 @@ class _WeatherPageState extends State<WeatherPage> {
       height: 100,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey.withOpacity(0.1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: ListView.builder(
@@ -250,16 +258,17 @@ class _WeatherPageState extends State<WeatherPage> {
                 Text(
                   // 小时时间格式 HH:mm
                   "$day",
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  style: const TextStyle(fontSize: 14, color: Colors.white),
                 ),
                 // 天气图标
-                OnlineWeatherIcon(iconCode: hour.icon, size: 20),
+                QIcon(iconCode: hour.icon, size: 20),
 
                 Text(
                   '${hour.temp}°',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -273,53 +282,163 @@ class _WeatherPageState extends State<WeatherPage> {
   // 未来七天天气
   Widget _buildForecast() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
         color: Colors.grey.withOpacity(0.1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
-        children: List.generate(7, (index) {
-          final Jiffy dayJ = Jiffy.parse(_forecastData![index].fxDate);
-          final String day = dayJ.format(pattern: "MM月dd日");
-          return SizedBox(
-            height: 40, // 固定行高
-            child: Row(
-              children: [
-                Text(
-                  day,
-                  style: const TextStyle(fontSize: 14, color: Colors.white),
+        children: [
+          ...List.generate(7, (index) {
+            final Jiffy dayJ = Jiffy.parse(_forecastData![index].fxDate);
+            final String day = dayJ.format(pattern: "MM月dd日");
+
+            return InkWell(
+              onTap: () {}, // 空的点击事件，启用InkWell效果
+              borderRadius: BorderRadius.circular(5),
+              child: Container(
+                height: 40, // 固定行高
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
                 ),
-                SizedBox(width: 10),
-                // jiffy计算星期几
-                Text(
-                  getWeekdayText(dayJ),
-                  style: const TextStyle(fontSize: 14, color: Colors.white),
-                ),
-                // 天气图标
-                Expanded(
-                  child: OnlineWeatherIcon(
-                    iconCode: '${_forecastData![index].iconDay}-fill',
-                    size: 20,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    children: [
+                      Text(
+                        day,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      // jiffy计算星期几
+                      Text(
+                        getWeekdayText(dayJ),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                        ),
+                      ),
+                      // 天气图标
+                      Expanded(
+                        child: QIcon(
+                          iconCode: '${_forecastData![index].iconDay}-fill',
+                          size: 20,
+                        ),
+                      ),
+                      Text(
+                        '${_forecastData![index].tempMin}°/${_forecastData![index].tempMax}°',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  '${_forecastData![index].tempMin}°/${_forecastData![index].tempMax}°',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+              ),
+            );
+          }),
+          SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            height: 40,
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(25),
             ),
-          );
-        }),
+            child: TextButton(
+              onPressed: () {},
+              child: Text(
+                '未来15天天气详情',
+                style: const TextStyle(fontSize: 14, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   // 天气详情
   Widget _buildDetail() {
+    return GridView.count(
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      crossAxisCount: getScreenWidth(context) > 600 ? 6 : 3,
+      mainAxisSpacing: 10,
+      crossAxisSpacing: 10,
+      children: [
+        _buildDetailItem('体感温度', '${now.feelsLike}°C'),
+        _buildDetailItem('湿度', '${now.humidity}%'),
+        _buildDetailItem('风向', now.windDir),
+        _buildDetailItem('风力', '${now.windScale}级'),
+        _buildDetailItem('气压', '${now.pressure}百帕'),
+        _buildDetailItem('能见度', '${now.vis}km'),
+      ],
+    );
+  }
+
+  // 日出日落时间
+  Widget _buildSunrise() {
+    // 获取当前时间
+    final nowTime = Jiffy.now();
+    // 解析日出时间
+    final sunriseParse = Jiffy.parse(dayDetail.sunrise, pattern: 'HH:mm');
+    // 解析日落时间
+    final sunsetParse = Jiffy.parse(dayDetail.sunset, pattern: 'HH:mm');
+    // 重新设置时间为当前日期的日出日落时间
+    final sunriseTime = Jiffy.parseFromMap({
+      Unit.year: nowTime.year,
+      Unit.month: nowTime.month,
+      Unit.day: nowTime.date,
+      Unit.hour: sunriseParse.hour,
+      Unit.minute: sunriseParse.minute,
+    });
+    // 重新设置时间为当前日期的日落时间
+    final sunsetTime = Jiffy.parseFromMap({
+      Unit.year: nowTime.year,
+      Unit.month: nowTime.month,
+      Unit.day: nowTime.date,
+      Unit.hour: sunsetParse.hour,
+      Unit.minute: sunsetParse.minute,
+    });
+
+    // 计算日出到日落的总分钟数
+    final totalMinutes = sunsetTime.diff(sunriseTime, unit: Unit.minute);
+
+    // 计算当前时间与日出时间的分钟差
+    final passedMinutes = nowTime.diff(sunriseTime, unit: Unit.minute);
+
+    // 计算已过时间和未过时间的flex值
+    int passedFlex = 0;
+    int remainingFlex = 10;
+
+    if (totalMinutes > 0) {
+      // 计算已过时间占比
+      final passedRatio = passedMinutes / totalMinutes;
+
+      if (passedRatio <= 0) {
+        // 还未日出
+        passedFlex = 0;
+        remainingFlex = 10;
+      } else if (passedRatio >= 1) {
+        // 已经日落
+        passedFlex = 10;
+        remainingFlex = 0;
+      } else {
+        // 日出后日落前，计算flex值
+        passedFlex = (passedRatio * 10).round();
+        remainingFlex = 10 - passedFlex;
+      }
+    } else {
+      print('总分钟数无效: $totalMinutes');
+    }
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -327,39 +446,93 @@ class _WeatherPageState extends State<WeatherPage> {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            '天气详情',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 15),
-
-          // 第一行详情
+          // 出落图标
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildDetailItem('体感温度', '${now.feelsLike}°C'),
-              _buildDetailItem('湿度', '${now.humidity}%'),
+              Column(
+                children: [
+                  QIcon(iconCode: '${100}-fill', size: 20),
+                  Text(
+                    // '日出时间: ${_formatTime(dayDetail.sunrise)}',
+                    "日出",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  QIcon(iconCode: '${100}-fill', size: 20),
+                  Text(
+                    // '日出时间: ${_formatTime(dayDetail.sunrise)}',
+                    "日落",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
-          const SizedBox(height: 15),
-
-          // 第二行详情
+          // 进度条
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildDetailItem('风向', now.windDir),
-              _buildDetailItem('风力', '${now.windScale}级'),
+              // 已经过的时间
+              Expanded(
+                flex: passedFlex,
+                child: Container(
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 146, 148, 150),
+                    borderRadius: BorderRadius.circular(2.5),
+                  ),
+                ),
+              ),
+              // 图标
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: QIcon(iconCode: '${100}-fill', size: 20),
+              ),
+              // 未过的时间
+              Expanded(
+                flex: remainingFlex,
+                child: Container(
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 8, 6, 6),
+                    borderRadius: BorderRadius.circular(2.5),
+                  ),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 15),
-
-          // 第三行详情
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildDetailItem('气压', '${now.pressure}hPa'),
-              _buildDetailItem('能见度', '${now.vis}km'),
+              Text(
+                _formatTime(dayDetail.sunrise),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                _formatTime(dayDetail.sunset),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
+              ),
             ],
           ),
         ],
@@ -367,17 +540,46 @@ class _WeatherPageState extends State<WeatherPage> {
     );
   }
 
-  // 构建详情项
+  // 构建详情项元素
   Widget _buildDetailItem(String label, String value) {
-    return Column(
-      children: [
-        Text(label, style: const TextStyle(fontSize: 14, color: Colors.grey)),
-        const SizedBox(height: 5),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+    return InkWell(
+      onTap: () {
+        // 点击详情项时的操作
+        print('点击了 $label: $value');
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
         ),
-      ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            // 图标
+            QIcon(
+              iconCode: '${100}-fill',
+              // 根据屏幕宽度调整图标大小
+              size: getScreenWidth(context) > 600 ? 20 : 28,
+            ),
+            // 详情项标签
+            Text(
+              label,
+              style: const TextStyle(fontSize: 14, color: Color.fromARGB(255, 83, 81, 81)),
+            ),
+            // 详情项值
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
