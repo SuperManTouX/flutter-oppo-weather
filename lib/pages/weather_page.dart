@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_oppo_weather/constants/index.dart';
 import 'package:flutter_oppo_weather/services/weather/weather_service.dart';
 import 'package:flutter_oppo_weather/models/weather/weather_models.dart';
-import 'package:flutter_oppo_weather/routes/index.dart';
 import 'package:flutter_oppo_weather/widget/QIcon.dart';
 import 'package:jiffy/jiffy.dart';
 
@@ -13,10 +12,14 @@ class WeatherPage extends StatefulWidget {
   // 城市名称参数，默认为北京
   final String cityName;
 
+  // 收藏按钮点击回调
+  final VoidCallback? onFavoritesPress;
+
   const WeatherPage({
     super.key,
     this.location = '101010100',
     this.cityName = '北京',
+    this.onFavoritesPress,
   });
 
   @override
@@ -28,10 +31,10 @@ class _WeatherPageState extends State<WeatherPage> {
   WeatherNowResponse? _nowResponse;
 
   // 7天天气数据 [0]是今天的天气
-  List<Daily>? _forecastData = [];
+  List<Daily> _forecastData = [];
 
   // 逐小时天气数据
-  List<Hourly>? _hourlyData = [];
+  List<Hourly> _hourlyData = [];
 
   // 加载状态
   bool _isLoading = false;
@@ -119,6 +122,17 @@ class _WeatherPageState extends State<WeatherPage> {
   }
 
   @override
+  void didUpdateWidget(covariant WeatherPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 当location参数变化时，重新获取天气数据
+    if (oldWidget.location != widget.location) {
+      _fetchWeatherData();
+      _fetchWeatherForecast();
+      _fetchWeather24h();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -126,9 +140,7 @@ class _WeatherPageState extends State<WeatherPage> {
         title: Text('${widget.cityName}'),
         actions: [
           IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, RouteNames.favorites);
-            },
+            onPressed: widget.onFavoritesPress,
             icon: const Icon(Icons.favorite_border),
             tooltip: '收藏列表',
           ),
@@ -166,7 +178,9 @@ class _WeatherPageState extends State<WeatherPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: GradientColors.Weather2English[now.text] as List<Color>,
+            colors: GradientColors.Weather2English[now.text] != null
+                ? GradientColors.Weather2English[now.text] as List<Color>
+                : [Color.fromARGB(0, 231, 102, 102), Colors.transparent],
           ),
         ),
         child: CustomScrollView(
