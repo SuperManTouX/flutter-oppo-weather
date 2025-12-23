@@ -20,8 +20,8 @@ class MyApp extends StatelessWidget {
       title: '磨叽天气',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      initialRoute: RouteNames.weather,
-      onGenerateRoute: AppRoutes.onGenerateRoute,
+      initialRoute: RouteNames.main,
+      routes: AppRoutes.routes,
     );
   }
 }
