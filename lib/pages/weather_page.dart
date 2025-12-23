@@ -290,7 +290,7 @@ class _WeatherPageState extends State<WeatherPage> {
                   children: [
                     Text(
                       // 小时时间格式 HH:mm
-                      index == 0 ? "现在" : day,
+                      day,
                       style: const TextStyle(fontSize: 14, color: Colors.white),
                     ),
                     // 天气图标
