@@ -178,8 +178,8 @@ class _WeatherPageState extends State<WeatherPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: GradientColors.Weather2English[now.text] != null
-                ? GradientColors.Weather2English[now.text] as List<Color>
+            colors: GlobalConfig.Gradient_Colors_Weather2English[now.text] != null
+                ? GlobalConfig.Gradient_Colors_Weather2English[now.text] as List<Color>
                 : [Color.fromARGB(0, 231, 102, 102), Colors.transparent],
           ),
         ),

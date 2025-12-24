@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_oppo_weather/pages/weather_page.dart';
 import 'package:flutter_oppo_weather/pages/city_page.dart';
-import 'package:flutter_oppo_weather/models/city.dart';
+import 'package:flutter_oppo_weather/models/display_city.dart';
 
 /// 页面状态枚举
 enum PageState {
@@ -101,7 +101,7 @@ class _MainContainerState extends State<MainContainer>
   }
 
   /// 选择城市并切换到天气页面
-  void _selectCity(City city) {
+  void _selectCity(DisplayCity city) {
     setState(() {
       _currentLocation = city.location;
       _currentCityName = city.name;
