@@ -16,7 +16,15 @@ class GlobalConfig {
       Color.fromARGB(255, 64, 64, 65), // 起始颜色
       Color.fromARGB(255, 170, 147, 147), // 结束颜色
     ],
-    "雨": [
+    "小雨": [
+      Color(0xFF4A90E2), // 起始颜色
+      Color(0xFF7FB8E7), // 结束颜色
+    ],
+    "中雨": [
+      Color(0xFF4A90E2), // 起始颜色
+      Color(0xFF7FB8E7), // 结束颜色
+    ],
+    "大雨": [
       Color(0xFF4A90E2), // 起始颜色
       Color(0xFF7FB8E7), // 结束颜色
     ],

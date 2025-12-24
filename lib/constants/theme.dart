@@ -183,7 +183,6 @@ class AppTheme {
       foregroundColor: textPrimary,
       elevation: 0,
       shadowColor: Colors.transparent,
-      centerTitle: true,
       titleTextStyle: const TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,

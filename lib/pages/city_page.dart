@@ -6,7 +6,7 @@ import 'package:flutter_oppo_weather/services/weather/qweather_service.dart';
 
 class CityPage extends StatefulWidget {
   // 选择城市回调
-  final Function(DisplayCity)? onCitySelect;
+  final Function(DisplayCity, bool isSearchResult)? onCitySelect;
 
   // 返回按钮点击回调
   final VoidCallback? onBackPress;
@@ -207,14 +207,11 @@ class _CityPageState extends State<CityPage> {
                                               ),
                                           delegate: SliverChildBuilderDelegate(
                                             (context, index) {
-                                              // 使用城市名称作为标签
-                                              final cityName =
+                                              // 获取完整的城市对象
+                                              final city =
                                                   _topCityList[index %
-                                                          _topCityList.length]
-                                                      .name;
-                                              return _buildSearchCityTag(
-                                                cityName,
-                                              );
+                                                      _topCityList.length];
+                                              return _buildSearchCityTag(city);
                                             },
                                             childCount: _topCityList
                                                 .length, // 显示热门城市数量个标签
@@ -312,7 +309,7 @@ class _CityPageState extends State<CityPage> {
         child: InkWell(
           onTap: () {
             // 点击城市项，调用回调函数传递城市信息
-            widget.onCitySelect?.call(city);
+            widget.onCitySelect?.call(city, false);
           },
           borderRadius: BorderRadius.circular(8.0),
           // 渐变色盒子
@@ -385,7 +382,7 @@ class _CityPageState extends State<CityPage> {
   }
 
   // 构建搜索城市标签
-  Widget _buildSearchCityTag(String cityName) {
+  Widget _buildSearchCityTag(SearchCity city) {
     return Ink(
       decoration: BoxDecoration(
         color: Colors.blue.shade100,
@@ -395,13 +392,18 @@ class _CityPageState extends State<CityPage> {
 
       child: InkWell(
         onTap: () {
-          // 可以添加点击标签的逻辑，比如搜索该城市
-          _searchController.text = cityName;
-          _filterItems();
+          // 将SearchCity转换为DisplayCity
+          final displayCity = DisplayCity(
+            name: city.name,
+            location: city.id,
+            now: null, // 初始时不包含天气数据
+          );
+          // 调用回调函数传递城市信息
+          widget.onCitySelect?.call(displayCity, true);
         },
         borderRadius: BorderRadius.circular(25),
         child: Text(
-          cityName,
+          city.name,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.blue.shade800,

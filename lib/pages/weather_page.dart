@@ -11,6 +11,7 @@ class WeatherPage extends StatefulWidget {
 
   // 城市名称参数，默认为北京
   final String cityName;
+  final bool isSearchResult;
 
   // 收藏按钮点击回调
   final VoidCallback? onFavoritesPress;
@@ -19,6 +20,8 @@ class WeatherPage extends StatefulWidget {
     super.key,
     this.location = '101010100',
     this.cityName = '北京',
+    this.isSearchResult = false,
+
     this.onFavoritesPress,
   });
 
@@ -135,7 +138,7 @@ class _WeatherPageState extends State<WeatherPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: !widget.isSearchResult?AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('${widget.cityName}'),
         actions: [
@@ -150,11 +153,36 @@ class _WeatherPageState extends State<WeatherPage> {
             tooltip: '刷新数据',
           ),
         ],
+      ):AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text('搜索结果'),
+        actions: [
+          TextButton(
+            onPressed: widget.onFavoritesPress,
+            child: Text(
+              '取消',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: widget.onFavoritesPress,
+            child: Text(
+              '添加',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Container(
           child: _isLoading
-              ? const CircularProgressIndicator()
+              ? _buildLoadingUI()
               : _nowResponse != null
               ? _buildWeatherUI()
               : _buildErrorUI(),
@@ -178,8 +206,10 @@ class _WeatherPageState extends State<WeatherPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: GlobalConfig.Gradient_Colors_Weather2English[now.text] != null
-                ? GlobalConfig.Gradient_Colors_Weather2English[now.text] as List<Color>
+            colors:
+                GlobalConfig.Gradient_Colors_Weather2English[now.text] != null
+                ? GlobalConfig.Gradient_Colors_Weather2English[now.text]
+                      as List<Color>
                 : [Color.fromARGB(0, 231, 102, 102), Colors.transparent],
           ),
         ),
@@ -366,7 +396,7 @@ class _WeatherPageState extends State<WeatherPage> {
                         ),
                       ),
                       SizedBox(
-                        width: 60,
+                        width: 80,
                         child: Text(
                           textAlign: TextAlign.right,
                           '${_forecastData![index].tempMin}°/${_forecastData![index].tempMax}°',
@@ -623,6 +653,39 @@ class _WeatherPageState extends State<WeatherPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // 构建加载UI
+  Widget _buildLoadingUI() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // 天气相关图标
+          Icon(
+            Icons.cloud_outlined,
+            size: 80,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          SizedBox(height: 20),
+          // 加载进度指示器
+          CircularProgressIndicator(
+            strokeWidth: 4,
+            color: Theme.of(context).colorScheme.primary,
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+          ),
+          SizedBox(height: 20),
+          // 加载文本提示
+          Text(
+            '正在获取天气数据...',
+            style: TextStyle(
+              fontSize: 18,
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
+          ),
+        ],
       ),
     );
   }

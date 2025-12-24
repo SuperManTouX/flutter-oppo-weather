@@ -40,6 +40,8 @@ class _MainContainerState extends State<MainContainer>
   // 当前选中的城市信息
   String _currentLocation = '';
   String _currentCityName = '';
+  // 是否为搜索结果
+  bool _isSearchResult = false;
 
   @override
   void initState() {
@@ -101,11 +103,13 @@ class _MainContainerState extends State<MainContainer>
   }
 
   /// 选择城市并切换到天气页面
-  void _selectCity(DisplayCity city) {
+  void _selectCity(DisplayCity city, bool isSearchResult) {
     setState(() {
       _currentLocation = city.location;
       _currentCityName = city.name;
       _currentState = PageState.weather;
+      // 传递是否为搜索结果
+      _isSearchResult = isSearchResult;
     });
     _animationController.reverse();
   }
@@ -149,6 +153,8 @@ class _MainContainerState extends State<MainContainer>
                   cityName: _currentCityName,
                   // 传递回调函数给天气页面
                   onFavoritesPress: _switchToFavorites,
+                  // 传递是否为搜索结果
+                  isSearchResult: _isSearchResult,
                 ),
               ),
             ),
