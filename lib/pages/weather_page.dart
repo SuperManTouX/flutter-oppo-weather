@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_oppo_weather/constants/index.dart';
 import 'package:flutter_oppo_weather/services/weather/weather_service.dart';
 import 'package:flutter_oppo_weather/models/weather/weather_models.dart';
-import 'package:flutter_oppo_weather/widget/QIcon.dart';
+import 'package:flutter_oppo_weather/widget/Icon.dart';
 import 'package:jiffy/jiffy.dart';
 
 class WeatherPage extends StatefulWidget {
@@ -138,47 +138,43 @@ class _WeatherPageState extends State<WeatherPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: !widget.isSearchResult?AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('${widget.cityName}'),
-        actions: [
-          IconButton(
-            onPressed: widget.onFavoritesPress,
-            icon: const Icon(Icons.favorite_border),
-            tooltip: '收藏列表',
-          ),
-          IconButton(
-            onPressed: _fetchWeatherData,
-            icon: const Icon(Icons.refresh),
-            tooltip: '刷新数据',
-          ),
-        ],
-      ):AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('搜索结果'),
-        actions: [
-          TextButton(
-            onPressed: widget.onFavoritesPress,
-            child: Text(
-              '取消',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+      appBar: !widget.isSearchResult
+          ? AppBar(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              title: Text('${widget.cityName}'),
+              actions: [
+                IconButton(
+                  onPressed: widget.onFavoritesPress,
+                  icon: const Icon(Icons.favorite_border),
+                  tooltip: '收藏列表',
+                ),
+                IconButton(
+                  onPressed: _fetchWeatherData,
+                  icon: const Icon(Icons.refresh),
+                  tooltip: '刷新数据',
+                ),
+              ],
+            )
+          : AppBar(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              title: Text('搜索结果'),
+              actions: [
+                TextButton(
+                  onPressed: widget.onFavoritesPress,
+                  child: Text(
+                    '取消',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
+                TextButton(
+                  onPressed: widget.onFavoritesPress,
+                  child: Text(
+                    '添加',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
+              ],
             ),
-          ),
-          TextButton(
-            onPressed: widget.onFavoritesPress,
-            child: Text(
-              '添加',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ],
-      ),
       body: SafeArea(
         child: Container(
           child: _isLoading
@@ -488,23 +484,41 @@ class _WeatherPageState extends State<WeatherPage> {
     // 计算已过时间和未过时间的flex值
     int passedFlex = 0;
     int remainingFlex = 10;
-
+    // 标记当前时间是否大于日落时间
+    final isAfterSunset = nowTime.isAfter(sunsetTime);
     if (totalMinutes > 0) {
+      // 定义计算占比的分子和分母
+      num ratioNumerator = passedMinutes;
+      num ratioDenominator = totalMinutes;
+
+      // 若当前时间大于日落时间，交换分子和分母
+      if (isAfterSunset) {
+        final temp = ratioNumerator;
+        ratioNumerator = ratioDenominator;
+        ratioDenominator = temp;
+      }
+
       // 计算已过时间占比
-      final passedRatio = passedMinutes / totalMinutes;
+      final passedRatio = ratioNumerator / ratioDenominator;
 
       if (passedRatio <= 0) {
         // 还未日出
         passedFlex = 0;
         remainingFlex = 10;
       } else if (passedRatio >= 1) {
-        // 已经日落
+        // 已经日落（或交换后占比达到1）
         passedFlex = 10;
         remainingFlex = 0;
       } else {
-        // 日出后日落前，计算flex值
+        // 日出后日落前（或交换后合理占比区间），计算flex值
         passedFlex = (passedRatio * 10).round();
         remainingFlex = 10 - passedFlex;
+      }
+      // 关键：当前时间大于日落时间时，交换passedFlex和remainingFlex的结果
+      if (isAfterSunset) {
+        final tempFlex = passedFlex;
+        passedFlex = remainingFlex;
+        remainingFlex = tempFlex;
       }
     } else {
       print('总分钟数无效: $totalMinutes');
@@ -525,10 +539,9 @@ class _WeatherPageState extends State<WeatherPage> {
             children: [
               Column(
                 children: [
-                  QIcon(iconCode: '${100}-fill', size: 20),
+                  NetIcon(name: isAfterSunset ? 'sunset' : 'sunrise', size: 20),
                   Text(
-                    // '日出时间: ${_formatTime(dayDetail.sunrise)}',
-                    "日出",
+                    isAfterSunset ? '日落' : '日出',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -539,10 +552,9 @@ class _WeatherPageState extends State<WeatherPage> {
               ),
               Column(
                 children: [
-                  QIcon(iconCode: '${100}-fill', size: 20),
+                  NetIcon(name: isAfterSunset ? 'sunrise' : 'sunset', size: 20),
                   Text(
-                    // '日出时间: ${_formatTime(dayDetail.sunrise)}',
-                    "日落",
+                    isAfterSunset ? '日出' : '日落',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
