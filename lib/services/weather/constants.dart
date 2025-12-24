@@ -4,7 +4,7 @@ class QWeatherConstants {
   static const String apiKey = '1aefd5adb034412b9bc9e0e3800d1c6f';
   
   // API基础URL
-  static const String baseUrl = 'https://mw2k5nprk7.re.qweatherapi.com/v7';
+  static const String baseUrl = 'https://mw2k5nprk7.re.qweatherapi.com';
   
   // 请求头
   static const Map<String, String> headers = {
@@ -13,10 +13,12 @@ class QWeatherConstants {
   };
   
   // API端点
-  static const String weatherNow = '/weather/now';
-  static const String weather3d = '/weather/3d';
-  static const String weather7d = '/weather/7d';
-  static const String weather10d = '/weather/10d';
-  static const String weather15d = '/weather/15d';
-  static const String weather24h = '/weather/24h';
+  static const String geoCity = '/geo/v2/city/lookup'; // 城市查询
+  static const String geoTop = '/geo/v2/city/top'; // 热门城市查询
+  static const String weatherNow = '/v7/weather/now'; // 当前天气
+  static const String weather3d = '/v7/weather/3d'; // 3天天气
+  static const String weather7d = '/v7/weather/7d'; // 7天天气
+  static const String weather10d = '/v7/weather/10d'; // 10天天气
+  static const String weather15d = '/v7/weather/15d'; // 15天天气
+  static const String weather24h = '/v7/weather/24h'; // 24小时天气
 }

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_oppo_weather/models/city_top_response.dart';
 import './constants.dart';
 import '../../models/weather/weather_models.dart';
 
@@ -6,9 +7,9 @@ import '../../models/weather/weather_models.dart';
 class QWeatherService {
   static final QWeatherService _instance = QWeatherService._internal();
   factory QWeatherService() => _instance;
-  
+
   late Dio _dio;
-  
+
   QWeatherService._internal() {
     _dio = Dio(
       BaseOptions(
@@ -18,26 +19,27 @@ class QWeatherService {
         receiveTimeout: const Duration(seconds: 10),
       ),
     );
-    
+
     // 添加请求拦截器
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        return handler.next(options);
-      },
-      onResponse: (response, handler) {
-        return handler.next(response);
-      },
-      onError: (DioException e, handler) {
-        print('错误: ${e.message}');
-        return handler.next(e);
-      },
-    ));
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          return handler.next(options);
+        },
+        onResponse: (response, handler) {
+          return handler.next(response);
+        },
+        onError: (DioException e, handler) {
+          print('错误: ${e.message}');
+          return handler.next(e);
+        },
+      ),
+    );
   }
-  
+
   // 获取实时天气
   Future<WeatherNowResponse> getWeatherNow({required String location}) async {
     try {
-      
       final response = await _dio.get(
         QWeatherConstants.weatherNow,
         queryParameters: {'location': location},
@@ -48,15 +50,15 @@ class QWeatherService {
       if (e is DioException) {
         print('Dio错误类型: ${e.type}');
         print('错误消息: ${e.message}');
-        
       }
       rethrow;
     }
   }
- 
-  
+
   // 获取3天天气预报
-  Future<WeatherForecastResponse> getWeather3d({required String location}) async {
+  Future<WeatherForecastResponse> getWeather3d({
+    required String location,
+  }) async {
     try {
       final response = await _dio.get(
         QWeatherConstants.weather3d,
@@ -68,9 +70,11 @@ class QWeatherService {
       rethrow;
     }
   }
-  
+
   // 获取7天天气预报
-  Future<WeatherForecastResponse> getWeather7d({required String location}) async {
+  Future<WeatherForecastResponse> getWeather7d({
+    required String location,
+  }) async {
     try {
       final response = await _dio.get(
         QWeatherConstants.weather7d,
@@ -82,9 +86,11 @@ class QWeatherService {
       rethrow;
     }
   }
-  
+
   // 获取10天天气预报
-  Future<WeatherForecastResponse> getWeather10d({required String location}) async {
+  Future<WeatherForecastResponse> getWeather10d({
+    required String location,
+  }) async {
     try {
       final response = await _dio.get(
         QWeatherConstants.weather10d,
@@ -96,9 +102,11 @@ class QWeatherService {
       rethrow;
     }
   }
-  
+
   // 获取15天天气预报
-  Future<WeatherForecastResponse> getWeather15d({required String location}) async {
+  Future<WeatherForecastResponse> getWeather15d({
+    required String location,
+  }) async {
     try {
       final response = await _dio.get(
         QWeatherConstants.weather15d,
@@ -110,7 +118,7 @@ class QWeatherService {
       rethrow;
     }
   }
-  
+
   // 获取24小时天气预报
   Future<Weather24hResponse> getWeather24h({required String location}) async {
     try {
@@ -121,6 +129,18 @@ class QWeatherService {
       return Weather24hResponse.fromJson(response.data);
     } catch (e) {
       print('获取24小时天气预报失败: $e');
+      rethrow;
+    }
+  }
+
+  // 获取热门城市列表
+  Future<CityTopResponse> getTopCityList() async {
+    try {
+      final service = QWeatherService();
+      final response = await service._dio.get(QWeatherConstants.geoTop);
+      return CityTopResponse.fromJson(response.data);
+    } catch (e) {
+      print('获取热门城市列表失败: $e');
       rethrow;
     }
   }

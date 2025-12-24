@@ -1,8 +1,9 @@
 // 渐变色类
 import 'package:flutter/material.dart';
+import 'package:flutter_oppo_weather/models/display_city.dart';
 
-class GradientColors {
-  static Map<String, List<Color>> Weather2English = {
+class GlobalConfig {
+  static Map<String, List<Color>> Gradient_Colors_Weather2English = {
     "晴": [
       Color(0xFF4A90E2), // 起始颜色
       Color.fromARGB(255, 255, 255, 255), // 结束颜色

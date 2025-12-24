@@ -3,7 +3,7 @@ import '../services/weather/weather_service.dart';
 import './weather/now.dart';
 import './weather/weather_now_response.dart';
 
-class City {
+class DisplayCity {
   // 城市名称
   final String name;
   
@@ -14,18 +14,18 @@ class City {
   final Now? now;
   
   // 构造函数
-  const City({
+  const DisplayCity({
     required this.name,
     required this.location,
     this.now,
   });
   
   // 静态异步方法 - 创建包含天气数据的City实例
-  static Future<City> createWithWeather({required String name, required String location}) async {
+  static Future<DisplayCity> createWithWeather({required String name, required String location}) async {
     try {
       final weatherService = QWeatherService();
       final WeatherNowResponse weatherNowResponse = await weatherService.getWeatherNow(location: location);
-      return City(
+      return DisplayCity(
         name: name,
         location: location,
         now: weatherNowResponse.now,
