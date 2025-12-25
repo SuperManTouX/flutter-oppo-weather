@@ -45,7 +45,6 @@ class _MainContainerState extends State<MainContainer>
   // 是否为搜索结果
   bool _isSearchResult = false;
 
-
   // 城市列表 - 从city_page.dart提升而来
   List<DisplayCity> _cityList = [];
   // 加载状态
@@ -156,21 +155,48 @@ class _MainContainerState extends State<MainContainer>
   }
 
   // 添加城市到收藏列表 - 从city_page.dart迁移而来
-  void addCity(DisplayCity city) {
-    setState(() {
-      // 检查城市是否已经存在
-      final existingCityIndex = _cityList.indexWhere((c) => c.id == city.id);
-      if (existingCityIndex == -1) {
-        // 城市不存在，添加到列表
-        _cityList.add(city);
-        // 保存到本地存储
-        _saveCityListToStorage(_cityList);
-        print('城市已添加到收藏列表: ${city.name}');
-      } else {
-        // 城市已存在
-        print('城市已在收藏列表中: ${city.name}');
-      }
-    });
+  bool addCity(DisplayCity city) {
+    // 检查城市列表是否已满
+    if (_cityList.length >= 15) {
+      // 显示槽位已满提示
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('当前天气槽位已满，最多添加15个城市'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return false;
+    }
+
+    // 检查城市是否已经存在
+    final existingCityIndex = _cityList.indexWhere((c) => c.id == city.id);
+    if (existingCityIndex != -1) {
+      // 城市已存在
+      print('失败：城市已在收藏列表中: ${city.name}');
+      // 显示城市已存在提示
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${city.name}已存在'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return false;
+    }
+    // 城市不存在，添加到列表
+    _cityList.add(city);
+    // 保存到本地存储
+    _saveCityListToStorage(_cityList);
+    print('城市已添加到收藏列表: ${city.name}');
+
+    setState(() {});
+    // 显示添加成功提示
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$_currentCityName已添加到收藏列表'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+    return true;
   }
 
   // 删除选中的城市 - 从city_page.dart迁移而来
@@ -249,9 +275,7 @@ class _MainContainerState extends State<MainContainer>
         _currentState == PageState.resultWeather) {
       // 如果有城市信息，设置要添加的城市
       if (city != null) {
-        setState(() {
-          addCity(city);
-        });
+        addCity(city);
       }
 
       setState(() {
@@ -311,7 +335,7 @@ class _MainContainerState extends State<MainContainer>
                 // 从城市列表页面返回到天气页面
                 _switchToWeather();
               },
-              
+
               // 传递城市列表
               cityList: _cityList,
               // 传递删除城市回调
@@ -353,6 +377,9 @@ class _MainContainerState extends State<MainContainer>
                         onFavoritesPress: _switchToFavorites,
                         // 传递是否为搜索结果
                         isSearchResult: _isSearchResult,
+                        // 传递城市列表长度和当前索引
+                        cityListLength: _cityList.length,
+                        currentCityIndex: _currentCityIndex,
                       )
                     : (_cityList.isEmpty
                           ? WeatherPage(
@@ -362,6 +389,9 @@ class _MainContainerState extends State<MainContainer>
                               onFavoritesPress: _switchToFavorites,
                               // 传递是否为搜索结果
                               isSearchResult: _isSearchResult,
+                              // 传递城市列表长度和当前索引
+                              cityListLength: _cityList.length,
+                              currentCityIndex: _currentCityIndex,
                             )
                           : PageView.builder(
                               // 使用Page控制器
@@ -386,6 +416,9 @@ class _MainContainerState extends State<MainContainer>
                                   onFavoritesPress: _switchToFavorites,
                                   // 传递是否为搜索结果
                                   isSearchResult: _isSearchResult,
+                                  // 传递城市列表长度和当前索引
+                                  cityListLength: _cityList.length,
+                                  currentCityIndex: index,
                                 );
                               },
                               // 设置PageView的item数量为城市列表的长度

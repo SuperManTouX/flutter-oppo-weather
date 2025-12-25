@@ -13,6 +13,10 @@ class WeatherPage extends StatefulWidget {
   // 城市名称参数，默认为北京
   final String cityName;
   final bool isSearchResult;
+  // 城市列表长度
+  final int cityListLength;
+  // 当前城市索引
+  final int currentCityIndex;
 
   // 收藏按钮点击回调
   final Function(DisplayCity?)? onFavoritesPress;
@@ -22,6 +26,8 @@ class WeatherPage extends StatefulWidget {
     this.id = '101010100',
     this.cityName = '北京',
     this.isSearchResult = false,
+    this.cityListLength = 0,
+    this.currentCityIndex = 0,
 
     this.onFavoritesPress,
   });
@@ -186,13 +192,7 @@ class _WeatherPageState extends State<WeatherPage> {
                         now: _nowResponse!.now,
                       );
                       widget.onFavoritesPress!(city);
-                      // 显示添加成功提示
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${widget.cityName}已添加到收藏列表'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
+                      
                     }
                   },
                   child: Text(
@@ -252,6 +252,11 @@ class _WeatherPageState extends State<WeatherPage> {
                     style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   SizedBox(height: 30),
+                  // 城市切换原点指示器
+                  !widget.isSearchResult && widget.cityListLength > 1
+                      ? _buildCityIndicator()
+                      : SizedBox(height: 0),
+                  SizedBox(height: 30),
                   // 实时小时天气
                   _buildHourly(),
                   SizedBox(height: 30),
@@ -269,6 +274,26 @@ class _WeatherPageState extends State<WeatherPage> {
           ],
         ),
       ),
+    );
+  }
+
+  // 城市切换原点指示器
+  Widget _buildCityIndicator() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(widget.cityListLength, (index) {
+        return Container(
+          margin: EdgeInsets.symmetric(horizontal: 4),
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: index == widget.currentCityIndex
+                ? Colors.white
+                : Colors.white.withOpacity(0.5),
+          ),
+        );
+      }),
     );
   }
 
