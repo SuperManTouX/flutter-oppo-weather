@@ -294,13 +294,7 @@ class _CityPageState extends State<CityPage> {
                                                 .length, // 显示热门城市数量个标签
                                           ),
                                         ),
-                                        SliverToBoxAdapter(
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [Text("国际热门城市")],
-                                          ),
-                                        ),
+                                        
                                         // 搜索结果
                                         if (_searchController.text.isNotEmpty)
                                           SliverToBoxAdapter(
