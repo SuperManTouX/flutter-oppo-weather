@@ -7,7 +7,7 @@ import 'package:jiffy/jiffy.dart';
 
 class WeatherPage extends StatefulWidget {
   // 城市位置码参数，默认为北京
-  final String location;
+  final String id;
 
   // 城市名称参数，默认为北京
   final String cityName;
@@ -18,7 +18,7 @@ class WeatherPage extends StatefulWidget {
 
   const WeatherPage({
     super.key,
-    this.location = '101010100',
+    this.id = '101010100',
     this.cityName = '北京',
     this.isSearchResult = false,
 
@@ -60,7 +60,7 @@ class _WeatherPageState extends State<WeatherPage> {
     });
     try {
       final service = QWeatherService();
-      final data = await service.getWeatherNow(location: widget.location);
+      final data = await service.getWeatherNow(id: widget.id);
       setState(() {
         _nowResponse = data;
         _isLoading = false;
@@ -80,7 +80,7 @@ class _WeatherPageState extends State<WeatherPage> {
     });
     try {
       final service = QWeatherService();
-      final data = await service.getWeather7d(location: widget.location);
+      final data = await service.getWeather7d(location: widget.id);
       setState(() {
         _forecastData = data.daily;
         _isLoading = false;
@@ -100,7 +100,7 @@ class _WeatherPageState extends State<WeatherPage> {
     });
     try {
       final service = QWeatherService();
-      final data = await service.getWeather24h(location: widget.location);
+      final data = await service.getWeather24h(location: widget.id);
       setState(() {
         _hourlyData = data.hourly;
         _isLoading = false;
@@ -128,7 +128,7 @@ class _WeatherPageState extends State<WeatherPage> {
   void didUpdateWidget(covariant WeatherPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     // 当location参数变化时，重新获取天气数据
-    if (oldWidget.location != widget.location) {
+    if (oldWidget.id != widget.id) {
       _fetchWeatherData();
       _fetchWeatherForecast();
       _fetchWeather24h();

@@ -38,11 +38,11 @@ class QWeatherService {
   }
 
   // 获取实时天气
-  Future<WeatherNowResponse> getWeatherNow({required String location}) async {
+  Future<WeatherNowResponse> getWeatherNow({required String id}) async {
     try {
       final response = await _dio.get(
         QWeatherConstants.weatherNow,
-        queryParameters: {'location': location},
+        queryParameters: {'location': id},
       );
       return WeatherNowResponse.fromJson(response.data);
     } catch (e) {

@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_oppo_weather/constants/index.dart';
 import 'package:flutter_oppo_weather/models/display_city.dart';
 import 'package:flutter_oppo_weather/models/search_city.dart';
 import 'package:flutter_oppo_weather/services/weather/qweather_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CityPage extends StatefulWidget {
   // 选择城市回调
@@ -38,7 +40,8 @@ class _CityPageState extends State<CityPage> {
   @override
   void initState() {
     super.initState();
-    _loadCityList();
+    // 加载城市列表
+    _loadCityListFromStorage();
     _loadTopCityList();
     _searchController.addListener(_filterItems);
     _searchFocusNode.addListener(() {
@@ -56,44 +59,39 @@ class _CityPageState extends State<CityPage> {
     setState(() {});
   }
 
-  // 异步加载收藏的城市列表
-  Future<void> _loadCityList() async {
-    setState(() {
-      isLoading = true;
-    });
-
+  // 将城市列表保存到本地存储
+  Future<void> _saveCityListToStorage(List<DisplayCity> cityList) async {
     try {
-      // 城市数据
-      final List<Map<String, String>> cityData = [
-        {'name': '北京', 'location': '101010100'},
-        {'name': '上海', 'location': '101020100'},
-        {'name': '广州', 'location': '101280101'},
-        {'name': '深圳', 'location': '101280601'},
-        {'name': '杭州', 'location': '101210101'},
-        {'name': '成都', 'location': '101270101'},
-        {'name': '重庆', 'location': '101040100'},
-        {'name': '武汉', 'location': '101200101'},
-        {'name': '西安', 'location': '101110101'},
-        {'name': '南京', 'location': '101190101'},
-      ];
-
-      // 使用createWithWeather创建城市实例
-      final List<Future<DisplayCity>> cityFutures = cityData.map((data) {
-        return DisplayCity.createWithWeather(
-          name: data['name']!,
-          location: data['location']!,
-        );
-      }).toList();
-
-      // 等待所有城市数据加载完成
-      _cityList = await Future.wait(cityFutures);
+      final prefs = await SharedPreferences.getInstance();
+      // 将DisplayCity列表转换为JSON字符串列表
+      final cityListJson = cityList.map((city) => city.toJson()).toList();
+      // 保存到本地存储
+      await prefs.setStringList('cityList', cityListJson.map((json) => jsonEncode(json)).toList());
+      print('城市列表已保存到本地存储');
     } catch (e) {
-      print('加载城市数据失败: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
+      print('保存城市列表到本地存储失败: $e');
     }
+  }
+
+  // 从本地存储加载城市列表
+  Future<void> _loadCityListFromStorage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      // 从本地存储获取城市列表JSON字符串
+      final cityListJsonStrings = prefs.getStringList('cityList');
+      if (cityListJsonStrings != null && cityListJsonStrings.isNotEmpty) {
+        // 将JSON字符串列表转换为DisplayCity列表
+        final cityList = cityListJsonStrings.map((jsonString) {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return DisplayCity.fromJson(json);
+        }).toList();
+        print('从本地存储加载城市列表成功');
+        _cityList =cityList;
+      }
+    } catch (e) {
+      print('从本地存储加载城市列表失败: $e');
+    }
+    return null;
   }
 
   // 获取热门城市列表
@@ -130,7 +128,7 @@ class _CityPageState extends State<CityPage> {
                 duration: Duration(milliseconds: 300),
                 child: IgnorePointer(
                   ignoring: _isSearchFocused,
-                  child: AppBar(title: Text('Search ListView')),
+                  child: AppBar(title: Text('城市列表')),
                 ),
               ),
             ),
@@ -395,7 +393,7 @@ class _CityPageState extends State<CityPage> {
           // 将SearchCity转换为DisplayCity
           final displayCity = DisplayCity(
             name: city.name,
-            location: city.id,
+            id: city.id,
             now: null, // 初始时不包含天气数据
           );
           // 调用回调函数传递城市信息

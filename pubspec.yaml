@@ -41,6 +41,8 @@ dependencies:
   json_annotation: ^4.8.1
   # 日期处理库，类似dayjs
   jiffy: ^6.2.3
+  # 本地存储
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:

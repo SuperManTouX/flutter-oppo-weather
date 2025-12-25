@@ -105,7 +105,7 @@ class _MainContainerState extends State<MainContainer>
   /// 选择城市并切换到天气页面
   void _selectCity(DisplayCity city, bool isSearchResult) {
     setState(() {
-      _currentLocation = city.location;
+      _currentLocation = city.id;
       _currentCityName = city.name;
       _currentState = PageState.weather;
       // 传递是否为搜索结果
@@ -149,7 +149,7 @@ class _MainContainerState extends State<MainContainer>
                 },
                 // 将WeatherPage作为child传递，避免在动画过程中频繁重建
                 child: WeatherPage(
-                  location: _currentLocation,
+                  id: _currentLocation,
                   cityName: _currentCityName,
                   // 传递回调函数给天气页面
                   onFavoritesPress: _switchToFavorites,
