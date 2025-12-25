@@ -437,15 +437,16 @@ class _CityPageState extends State<CityPage> {
           widget.onCitySelect?.call(displayCity, true);
         },
         borderRadius: BorderRadius.circular(25),
-        child: Text(
-          city.name,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.blue.shade800,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+        child: Center(
+          child: Text(
+            city.name,
+            style: TextStyle(
+              color: Colors.blue.shade800,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
-          overflow: TextOverflow.ellipsis,
         ),
       ),
     );
