@@ -13,14 +13,27 @@ class CityPage extends StatefulWidget {
   // 返回按钮点击回调
   final VoidCallback? onBackPress;
 
-  // 要添加的城市
-  final DisplayCity? cityToAdd;
+
+  // 城市列表 - 从父组件传入
+  final List<DisplayCity> cityList;
+
+  // 删除城市回调
+  final Function(Set<String>)? onDeleteCities;
+
+  // 更新城市列表顺序回调
+  final Function(int, int)? onUpdateCityOrder;
+
+  // 加载状态
+  final bool isLoading;
 
   const CityPage({
     super.key,
     this.onCitySelect,
     this.onBackPress,
-    this.cityToAdd,
+    required this.cityList,
+    this.onDeleteCities,
+    this.onUpdateCityOrder,
+    this.isLoading = false,
   });
 
   @override
@@ -28,12 +41,8 @@ class CityPage extends StatefulWidget {
 }
 
 class _CityPageState extends State<CityPage> {
-  // 城市列表
-  List<DisplayCity> _cityList = [];
   // 热门城市列表
   List<SearchCity> _topCityList = [];
-  // 加载状态
-  bool isLoading = true;
 
   // 搜索控制器
   final TextEditingController _searchController = TextEditingController();
@@ -53,8 +62,6 @@ class _CityPageState extends State<CityPage> {
   @override
   void initState() {
     super.initState();
-    // 加载城市列表
-    _loadCityListFromStorage();
     _loadTopCityList();
     _searchController.addListener(_filterItems);
     _searchFocusNode.addListener(() {
@@ -64,24 +71,6 @@ class _CityPageState extends State<CityPage> {
         });
       }
     });
-
-    // 如果有要添加的城市，添加到收藏列表
-    if (widget.cityToAdd != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        addCity(widget.cityToAdd!);
-      });
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant CityPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // 当cityToAdd参数变化时，重新处理添加城市的逻辑
-    if (oldWidget.cityToAdd != widget.cityToAdd && widget.cityToAdd != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        addCity(widget.cityToAdd!);
-      });
-    }
   }
 
   // 过滤搜索列表项
@@ -115,45 +104,6 @@ class _CityPageState extends State<CityPage> {
     }
   }
 
-  // 将城市列表保存到本地存储
-  Future<void> _saveCityListToStorage(List<DisplayCity> cityList) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      // 将DisplayCity列表转换为JSON字符串列表
-      final cityListJson = cityList.map((city) => city.toJson()).toList();
-      // 保存到本地存储
-      await prefs.setStringList(
-        'cityList',
-        cityListJson.map((json) => jsonEncode(json)).toList(),
-      );
-      print('城市列表已保存到本地存储');
-    } catch (e) {
-      print('保存城市列表到本地存储失败: $e');
-    }
-  }
-
-  // 从本地存储加载城市列表
-  Future<void> _loadCityListFromStorage() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      // 从本地存储获取城市列表JSON字符串
-      final cityListJsonStrings = prefs.getStringList('cityList');
-      if (cityListJsonStrings != null && cityListJsonStrings.isNotEmpty) {
-        // 将JSON字符串列表转换为DisplayCity列表
-        final cityList = cityListJsonStrings.map((jsonString) {
-          final json = jsonDecode(jsonString) as Map<String, dynamic>;
-          return DisplayCity.fromJson(json);
-        }).toList();
-        print('从本地存储加载城市列表成功');
-        setState(() {
-          _cityList = cityList;
-        });
-      }
-    } catch (e) {
-      print('从本地存储加载城市列表失败: $e');
-    }
-  }
-
   // 删除选中的城市
   void _deleteSelectedCities() {
     if (_selectedCityIds.isEmpty) {
@@ -165,40 +115,20 @@ class _CityPageState extends State<CityPage> {
       return;
     }
 
-    // 删除选中的城市
+    // 调用父组件的删除城市回调
+    if (widget.onDeleteCities != null) {
+      widget.onDeleteCities!(_selectedCityIds);
+    }
+
+    // 退出多选模式
     setState(() {
-      _cityList.removeWhere((city) => _selectedCityIds.contains(city.id));
-      _selectedCityIds.clear();
       _isMultiSelectMode = false;
-    });
-
-    // 保存更新后的城市列表
-    _saveCityListToStorage(_cityList);
-  }
-
-  // 添加城市到收藏列表
-  void addCity(DisplayCity city) {
-    setState(() {
-      // 检查城市是否已经存在
-      final existingCityIndex = _cityList.indexWhere((c) => c.id == city.id);
-      if (existingCityIndex == -1) {
-        // 城市不存在，添加到列表
-        _cityList.add(city);
-        // 保存到本地存储
-        _saveCityListToStorage(_cityList);
-        print('城市已添加到收藏列表: ${city.name}');
-      } else {
-        // 城市已存在
-        print('城市已在收藏列表中: ${city.name}');
-      }
+      _selectedCityIds.clear();
     });
   }
 
   // 获取热门城市列表
   Future<void> _loadTopCityList() async {
-    setState(() {
-      isLoading = true;
-    });
     try {
       final service = QWeatherService();
       final topCityResponse = await service.getTopCityList();
@@ -207,10 +137,6 @@ class _CityPageState extends State<CityPage> {
       });
     } catch (e) {
       print('加载热门城市列表失败: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
     }
   }
 
@@ -283,7 +209,7 @@ class _CityPageState extends State<CityPage> {
                       AnimatedOpacity(
                         opacity: _isSearchFocused ? 0.0 : 1.0,
                         duration: Duration(milliseconds: 300),
-                        child: _cityList.isEmpty
+                        child: widget.cityList.isEmpty
                             ? Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -306,32 +232,25 @@ class _CityPageState extends State<CityPage> {
                               )
                             : _isMultiSelectMode
                             ? ReorderableListView.builder(
-                                itemCount: _cityList.length,
+                                itemCount: widget.cityList.length,
                                 itemBuilder: (context, index) {
-                                  final city = _cityList[index];
+                                  final city = widget.cityList[index];
                                   return _buildCityItem(city);
                                 },
                                 onReorder: (oldIndex, newIndex) {
-                                  setState(() {
-                                    // 调整newIndex，因为当从后往前拖动时，newIndex会变化
-                                    if (oldIndex < newIndex) {
-                                      newIndex -= 1;
-                                    }
-                                    // 移除旧位置的城市
-                                    final DisplayCity city = _cityList.removeAt(
+                                  // 调用父组件的更新城市列表顺序回调
+                                  if (widget.onUpdateCityOrder != null) {
+                                    widget.onUpdateCityOrder!(
                                       oldIndex,
+                                      newIndex,
                                     );
-                                    // 在新位置插入城市
-                                    _cityList.insert(newIndex, city);
-                                    // 保存更新后的城市列表
-                                    _saveCityListToStorage(_cityList);
-                                  });
+                                  }
                                 },
                               )
                             : ListView.builder(
-                                itemCount: _cityList.length,
+                                itemCount: widget.cityList.length,
                                 itemBuilder: (context, index) {
-                                  final city = _cityList[index];
+                                  final city = widget.cityList[index];
                                   return _buildCityItem(city);
                                 },
                               ),
