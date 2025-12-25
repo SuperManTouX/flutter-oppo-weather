@@ -12,11 +12,16 @@ class CityPage extends StatefulWidget {
 
   // 返回按钮点击回调
   final VoidCallback? onBackPress;
-  
+
   // 要添加的城市
   final DisplayCity? cityToAdd;
 
-  const CityPage({super.key, this.onCitySelect, this.onBackPress, this.cityToAdd});
+  const CityPage({
+    super.key,
+    this.onCitySelect,
+    this.onBackPress,
+    this.cityToAdd,
+  });
 
   @override
   State<CityPage> createState() => _CityPageState();
@@ -29,7 +34,7 @@ class _CityPageState extends State<CityPage> {
   List<SearchCity> _topCityList = [];
   // 加载状态
   bool isLoading = true;
-  
+
   // 搜索控制器
   final TextEditingController _searchController = TextEditingController();
   // 搜索焦点节点
@@ -40,6 +45,11 @@ class _CityPageState extends State<CityPage> {
   List<SearchCity> _searchResults = [];
   // 搜索加载状态
   bool _isSearchLoading = false;
+
+  // 多选模式状态
+  bool _isMultiSelectMode = false;
+  // 选中的城市ID列表
+  Set<String> _selectedCityIds = {};
   @override
   void initState() {
     super.initState();
@@ -54,7 +64,7 @@ class _CityPageState extends State<CityPage> {
         });
       }
     });
-    
+
     // 如果有要添加的城市，添加到收藏列表
     if (widget.cityToAdd != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -66,7 +76,6 @@ class _CityPageState extends State<CityPage> {
   @override
   void didUpdateWidget(covariant CityPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    print(widget.cityToAdd);
     // 当cityToAdd参数变化时，重新处理添加城市的逻辑
     if (oldWidget.cityToAdd != widget.cityToAdd && widget.cityToAdd != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -113,7 +122,10 @@ class _CityPageState extends State<CityPage> {
       // 将DisplayCity列表转换为JSON字符串列表
       final cityListJson = cityList.map((city) => city.toJson()).toList();
       // 保存到本地存储
-      await prefs.setStringList('cityList', cityListJson.map((json) => jsonEncode(json)).toList());
+      await prefs.setStringList(
+        'cityList',
+        cityListJson.map((json) => jsonEncode(json)).toList(),
+      );
       print('城市列表已保存到本地存储');
     } catch (e) {
       print('保存城市列表到本地存储失败: $e');
@@ -140,6 +152,28 @@ class _CityPageState extends State<CityPage> {
     } catch (e) {
       print('从本地存储加载城市列表失败: $e');
     }
+  }
+
+  // 删除选中的城市
+  void _deleteSelectedCities() {
+    if (_selectedCityIds.isEmpty) {
+      // 没有选中任何城市，退出多选模式
+      setState(() {
+        _isMultiSelectMode = false;
+        _selectedCityIds.clear();
+      });
+      return;
+    }
+
+    // 删除选中的城市
+    setState(() {
+      _cityList.removeWhere((city) => _selectedCityIds.contains(city.id));
+      _selectedCityIds.clear();
+      _isMultiSelectMode = false;
+    });
+
+    // 保存更新后的城市列表
+    _saveCityListToStorage(_cityList);
   }
 
   // 添加城市到收藏列表
@@ -194,7 +228,43 @@ class _CityPageState extends State<CityPage> {
                 duration: Duration(milliseconds: 300),
                 child: IgnorePointer(
                   ignoring: _isSearchFocused,
-                  child: AppBar(title: Text('城市列表')),
+                  child: AppBar(
+                    title: Text('城市列表'),
+                    actions: [
+                      // 只在多选模式下显示退出按钮
+                      if (_isMultiSelectMode)
+                        IconButton(
+                          onPressed: () {
+                            // 退出多选模式 并清空选中的城市
+                            setState(() {
+                              _isMultiSelectMode = false;
+                              _selectedCityIds.clear();
+                            });
+                          },
+                          icon: Icon(Icons.search),
+                          tooltip: "取消",
+                        ),
+                      IconButton(
+                        icon: Icon(
+                          _isMultiSelectMode
+                              ? Icons.delete_outline
+                              : Icons.search,
+                        ),
+                        tooltip: _isMultiSelectMode ? '删除选中项' : '多选',
+                        onPressed: () {
+                          if (_isMultiSelectMode) {
+                            // 删除选中的城市
+                            _deleteSelectedCities();
+                          } else {
+                            // 进入多选模式
+                            setState(() {
+                              _isMultiSelectMode = true;
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -234,6 +304,30 @@ class _CityPageState extends State<CityPage> {
                                   ],
                                 ),
                               )
+                            : _isMultiSelectMode
+                            ? ReorderableListView.builder(
+                                itemCount: _cityList.length,
+                                itemBuilder: (context, index) {
+                                  final city = _cityList[index];
+                                  return _buildCityItem(city);
+                                },
+                                onReorder: (oldIndex, newIndex) {
+                                  setState(() {
+                                    // 调整newIndex，因为当从后往前拖动时，newIndex会变化
+                                    if (oldIndex < newIndex) {
+                                      newIndex -= 1;
+                                    }
+                                    // 移除旧位置的城市
+                                    final DisplayCity city = _cityList.removeAt(
+                                      oldIndex,
+                                    );
+                                    // 在新位置插入城市
+                                    _cityList.insert(newIndex, city);
+                                    // 保存更新后的城市列表
+                                    _saveCityListToStorage(_cityList);
+                                  });
+                                },
+                              )
                             : ListView.builder(
                                 itemCount: _cityList.length,
                                 itemBuilder: (context, index) {
@@ -272,15 +366,19 @@ class _CityPageState extends State<CityPage> {
                                           delegate: SliverChildBuilderDelegate(
                                             (context, index) {
                                               // 获取完整的城市对象
-                                              final city = _topCityList[index % _topCityList.length];
+                                              final city =
+                                                  _topCityList[index %
+                                                      _topCityList.length];
                                               return _buildSearchCityTag(city);
                                             },
-                                            childCount: _topCityList.length, // 显示热门城市数量个标签
+                                            childCount: _topCityList
+                                                .length, // 显示热门城市数量个标签
                                           ),
                                         ),
                                         SliverToBoxAdapter(
                                           child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
                                             children: [Text("国际热门城市")],
                                           ),
                                         ),
@@ -288,9 +386,13 @@ class _CityPageState extends State<CityPage> {
                                         if (_searchController.text.isNotEmpty)
                                           SliverToBoxAdapter(
                                             child: Padding(
-                                              padding: EdgeInsets.only(top: 20, bottom: 10),
+                                              padding: EdgeInsets.only(
+                                                top: 20,
+                                                bottom: 10,
+                                              ),
                                               child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
                                                 children: [Text("搜索结果")],
                                               ),
                                             ),
@@ -300,24 +402,34 @@ class _CityPageState extends State<CityPage> {
                                           SliverToBoxAdapter(
                                             child: Padding(
                                               padding: EdgeInsets.all(20),
-                                              child: Center(child: CircularProgressIndicator()),
+                                              child: Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              ),
                                             ),
                                           )
                                         else if (_searchResults.isNotEmpty)
                                           SliverList(
                                             delegate: SliverChildBuilderDelegate(
                                               (context, index) {
-                                                final city = _searchResults[index];
-                                                return _buildSearchResultItem(city);
+                                                final city =
+                                                    _searchResults[index];
+                                                return _buildSearchResultItem(
+                                                  city,
+                                                );
                                               },
                                               childCount: _searchResults.length,
                                             ),
                                           )
-                                        else if (_searchController.text.isNotEmpty)
+                                        else if (_searchController
+                                            .text
+                                            .isNotEmpty)
                                           SliverToBoxAdapter(
                                             child: Padding(
                                               padding: EdgeInsets.all(20),
-                                              child: Center(child: Text("未找到相关城市")),
+                                              child: Center(
+                                                child: Text("未找到相关城市"),
+                                              ),
                                             ),
                                           ),
                                       ],
@@ -396,7 +508,12 @@ class _CityPageState extends State<CityPage> {
 
   // 构建城市列表项
   Widget _buildCityItem(DisplayCity city) {
+    // 为ReorderableListView提供唯一的key
+    final key = ValueKey(city.id);
+    final isSelected = _selectedCityIds.contains(city.id);
+
     return Padding(
+      key: key,
       padding: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
       child: Material(
         // Material组件支持InkWell的水波纹效果
@@ -404,8 +521,19 @@ class _CityPageState extends State<CityPage> {
         borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: () {
-            // 点击城市项，调用回调函数传递城市信息
-            widget.onCitySelect?.call(city, false);
+            if (_isMultiSelectMode) {
+              // 多选模式下，切换选中状态
+              setState(() {
+                if (isSelected) {
+                  _selectedCityIds.remove(city.id);
+                } else {
+                  _selectedCityIds.add(city.id);
+                }
+              });
+            } else {
+              // 正常模式下，调用回调函数传递城市信息
+              widget.onCitySelect?.call(city, false);
+            }
           },
           borderRadius: BorderRadius.circular(8.0),
           // 渐变色盒子
@@ -423,52 +551,79 @@ class _CityPageState extends State<CityPage> {
                     [Colors.blue, Colors.lightBlue],
               ),
               borderRadius: BorderRadius.circular(8.0),
+              border: isSelected
+                  ? Border.all(color: Colors.white, width: 2)
+                  : null,
             ),
-            child: Column(
+            child: Stack(
               children: [
-                Row(
+                Column(
                   children: [
-                    // 地区
-                    Text(
-                      city.name,
-                      style: const TextStyle(
-                        fontSize: 32.0,
-                        color: Colors.white,
-                      ),
+                    Row(
+                      children: [
+                        // 地区
+                        Text(
+                          city.name,
+                          style: const TextStyle(
+                            fontSize: 32.0,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Spacer(),
+                        // 温度
+                        Text(
+                          city.now != null ? '${city.now?.temp}°' : '--',
+                          style: const TextStyle(
+                            fontSize: 24.0,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    const Spacer(),
-                    // 温度
-                    Text(
-                      city.now != null ? '${city.now?.temp}°' : '--',
-                      style: const TextStyle(
-                        fontSize: 24.0,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    SizedBox(height: 8.0),
+                    // 空气质量和天气状态
+                    Row(
+                      children: [
+                        Text(
+                          "空气优  90",
+                          style: const TextStyle(
+                            fontSize: 14.0,
+                            color: Color.fromARGB(255, 209, 208, 208),
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          city.now?.text ?? "--",
+                          style: const TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                SizedBox(height: 8.0),
-                // 空气质量和天气状态
-                Row(
-                  children: [
-                    Text(
-                      "空气优  90",
-                      style: const TextStyle(
-                        fontSize: 14.0,
-                        color: Color.fromARGB(255, 209, 208, 208),
-                      ),
+                // 多选模式下显示复选框
+                if (_isMultiSelectMode)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Checkbox(
+                      value: isSelected,
+                      onChanged: (value) {
+                        setState(() {
+                          if (value == true) {
+                            _selectedCityIds.add(city.id);
+                          } else {
+                            _selectedCityIds.remove(city.id);
+                          }
+                        });
+                      },
+                      checkColor: Colors.blue,
+                      fillColor: MaterialStateProperty.all(Colors.white),
                     ),
-                    const Spacer(),
-                    Text(
-                      city.now?.text ?? "--",
-                      style: const TextStyle(
-                        fontSize: 14.0,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
               ],
             ),
           ),
@@ -537,18 +692,12 @@ class _CityPageState extends State<CityPage> {
             children: [
               Text(
                 city.name,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
               SizedBox(height: 4),
               Text(
                 '${city.adm1}, ${city.country}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
             ],
           ),
