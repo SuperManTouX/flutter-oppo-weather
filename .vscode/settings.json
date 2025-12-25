@@ -1,4 +1,0 @@
-{
-  "dart.flutterAdditionalArgs": ["-d", "chrome"],
-  "dart.flutterRunLogFile": "${workspaceFolder}/.vscode/flutter_run.log"
-}
