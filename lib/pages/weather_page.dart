@@ -157,8 +157,11 @@ class _WeatherPageState extends State<WeatherPage> {
                       widget.onFavoritesPress!(null);
                     }
                   },
-                  icon: const Icon(Icons.favorite_border),
-                  tooltip: '收藏列表',
+                  icon: NetIcon(
+                    name: GlobalConfig.SYS_ICON["城市列表"]!,
+                    size: 24,
+                  ),
+                  tooltip: '城市列表',
                 ),
                 IconButton(
                   onPressed: _fetchWeatherData,
@@ -185,14 +188,14 @@ class _WeatherPageState extends State<WeatherPage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    if (widget.onFavoritesPress != null && _nowResponse != null) {
+                    if (widget.onFavoritesPress != null &&
+                        _nowResponse != null) {
                       final city = DisplayCity(
                         name: widget.cityName,
                         id: widget.id,
                         now: _nowResponse!.now,
                       );
                       widget.onFavoritesPress!(city);
-                      
                     }
                   },
                   child: Text(
@@ -693,10 +696,10 @@ class _WeatherPageState extends State<WeatherPage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             // 图标
-            QIcon(
-              iconCode: '${100}-fill',
+            NetIcon(
               // 根据屏幕宽度调整图标大小
               size: getScreenWidth(context) > 600 ? 20 : 28,
+              name: GlobalConfig.DETAIL_ICON[label]!,
             ),
             // 详情项标签
             Text(

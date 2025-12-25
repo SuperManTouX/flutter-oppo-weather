@@ -4,6 +4,7 @@ import 'package:flutter_oppo_weather/constants/index.dart';
 import 'package:flutter_oppo_weather/models/display_city.dart';
 import 'package:flutter_oppo_weather/models/search_city.dart';
 import 'package:flutter_oppo_weather/services/weather/qweather_service.dart';
+import 'package:flutter_oppo_weather/widget/Icon.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CityPage extends StatefulWidget {
@@ -12,7 +13,6 @@ class CityPage extends StatefulWidget {
 
   // 返回按钮点击回调
   final VoidCallback? onBackPress;
-
 
   // 城市列表 - 从父组件传入
   final List<DisplayCity> cityList;
@@ -167,14 +167,14 @@ class _CityPageState extends State<CityPage> {
                               _selectedCityIds.clear();
                             });
                           },
-                          icon: Icon(Icons.search),
+                          icon: Icon(Icons.close),
                           tooltip: "取消",
                         ),
                       IconButton(
                         icon: Icon(
                           _isMultiSelectMode
                               ? Icons.delete_outline
-                              : Icons.search,
+                              : Icons.multiple_stop,
                         ),
                         tooltip: _isMultiSelectMode ? '删除选中项' : '多选',
                         onPressed: () {

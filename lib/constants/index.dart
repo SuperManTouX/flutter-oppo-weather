@@ -37,4 +37,17 @@ class GlobalConfig {
       Color.fromARGB(255, 97, 97, 97), // 结束颜色
     ],
   };
+  static const Map<String, String> DETAIL_ICON = {
+    "湿度": "humidity",
+    "气压": "vis",
+    "能见度": "vis",
+    "风向": "windDir",
+    "风力": "windScale",
+    "体感温度": "vis",
+  };
+  static const Map<String, String> SYS_ICON = {
+    "取消": "cancel_close_delete_exit_logout_remove_x_icon_123217",
+    "城市列表": "cityList",
+    "多选": "select_multiple",
+  };
 }
