@@ -36,6 +36,10 @@ class _CityPageState extends State<CityPage> {
   final FocusNode _searchFocusNode = FocusNode();
   // 是否搜索框获得焦点
   bool _isSearchFocused = false;
+  // 搜索结果列表
+  List<SearchCity> _searchResults = [];
+  // 搜索加载状态
+  bool _isSearchLoading = false;
   @override
   void initState() {
     super.initState();
@@ -72,9 +76,34 @@ class _CityPageState extends State<CityPage> {
   }
 
   // 过滤搜索列表项
-  void _filterItems() {
-    String query = _searchController.text.toLowerCase();
-    setState(() {});
+  void _filterItems() async {
+    String query = _searchController.text.trim();
+    if (query.isEmpty) {
+      setState(() {
+        _searchResults.clear();
+        _isSearchLoading = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _isSearchLoading = true;
+    });
+
+    try {
+      final service = QWeatherService();
+      final response = await service.searchCity(keyword: query);
+      setState(() {
+        _searchResults = response.location;
+        _isSearchLoading = false;
+      });
+    } catch (e) {
+      print('搜索城市失败: $e');
+      setState(() {
+        _searchResults.clear();
+        _isSearchLoading = false;
+      });
+    }
   }
 
   // 将城市列表保存到本地存储
@@ -243,22 +272,54 @@ class _CityPageState extends State<CityPage> {
                                           delegate: SliverChildBuilderDelegate(
                                             (context, index) {
                                               // 获取完整的城市对象
-                                              final city =
-                                                  _topCityList[index %
-                                                      _topCityList.length];
+                                              final city = _topCityList[index % _topCityList.length];
                                               return _buildSearchCityTag(city);
                                             },
-                                            childCount: _topCityList
-                                                .length, // 显示热门城市数量个标签
+                                            childCount: _topCityList.length, // 显示热门城市数量个标签
                                           ),
                                         ),
                                         SliverToBoxAdapter(
                                           child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.start,
                                             children: [Text("国际热门城市")],
                                           ),
                                         ),
+                                        // 搜索结果
+                                        if (_searchController.text.isNotEmpty)
+                                          SliverToBoxAdapter(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(top: 20, bottom: 10),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [Text("搜索结果")],
+                                              ),
+                                            ),
+                                          ),
+                                        // 搜索结果列表
+                                        if (_isSearchLoading)
+                                          SliverToBoxAdapter(
+                                            child: Padding(
+                                              padding: EdgeInsets.all(20),
+                                              child: Center(child: CircularProgressIndicator()),
+                                            ),
+                                          )
+                                        else if (_searchResults.isNotEmpty)
+                                          SliverList(
+                                            delegate: SliverChildBuilderDelegate(
+                                              (context, index) {
+                                                final city = _searchResults[index];
+                                                return _buildSearchResultItem(city);
+                                              },
+                                              childCount: _searchResults.length,
+                                            ),
+                                          )
+                                        else if (_searchController.text.isNotEmpty)
+                                          SliverToBoxAdapter(
+                                            child: Padding(
+                                              padding: EdgeInsets.all(20),
+                                              child: Center(child: Text("未找到相关城市")),
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   ),
@@ -446,6 +507,50 @@ class _CityPageState extends State<CityPage> {
               fontWeight: FontWeight.w500,
             ),
             overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 构建搜索结果项
+  Widget _buildSearchResultItem(SearchCity city) {
+    return Ink(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+      ),
+      child: InkWell(
+        onTap: () {
+          // 将SearchCity转换为DisplayCity
+          final displayCity = DisplayCity(
+            name: city.name,
+            id: city.id,
+            now: null, // 初始时不包含天气数据
+          );
+          // 调用回调函数传递城市信息
+          widget.onCitySelect?.call(displayCity, true);
+        },
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                city.name,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                '${city.adm1}, ${city.country}',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
           ),
         ),
       ),

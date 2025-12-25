@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_oppo_weather/models/city_top_response.dart';
+import 'package:flutter_oppo_weather/models/geo_city_response.dart';
 import './constants.dart';
 import '../../models/weather/weather_models.dart';
 
@@ -141,6 +142,24 @@ class QWeatherService {
       return CityTopResponse.fromJson(response.data);
     } catch (e) {
       print('获取热门城市列表失败: $e');
+      rethrow;
+    }
+  }
+
+  // 搜索城市
+  Future<GeoCityResponse> searchCity({required String keyword}) async {
+    try {
+      final response = await _dio.get(
+        QWeatherConstants.geoCity,
+        queryParameters: {'location': keyword},
+      );
+      return GeoCityResponse.fromJson(response.data);
+    } catch (e) {
+      print('搜索城市失败: $e');
+      if (e is DioException) {
+        print('Dio错误类型: ${e.type}');
+        print('错误消息: ${e.message}');
+      }
       rethrow;
     }
   }
