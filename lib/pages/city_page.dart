@@ -12,8 +12,11 @@ class CityPage extends StatefulWidget {
 
   // 返回按钮点击回调
   final VoidCallback? onBackPress;
+  
+  // 要添加的城市
+  final DisplayCity? cityToAdd;
 
-  const CityPage({super.key, this.onCitySelect, this.onBackPress});
+  const CityPage({super.key, this.onCitySelect, this.onBackPress, this.cityToAdd});
 
   @override
   State<CityPage> createState() => _CityPageState();
@@ -26,11 +29,7 @@ class _CityPageState extends State<CityPage> {
   List<SearchCity> _topCityList = [];
   // 加载状态
   bool isLoading = true;
-  // 搜索列表项
-  final List<String> _searchListViewItems = List.generate(
-    10,
-    (index) => 'Search Item ${index + 1}',
-  );
+  
   // 搜索控制器
   final TextEditingController _searchController = TextEditingController();
   // 搜索焦点节点
@@ -51,6 +50,25 @@ class _CityPageState extends State<CityPage> {
         });
       }
     });
+    
+    // 如果有要添加的城市，添加到收藏列表
+    if (widget.cityToAdd != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        addCity(widget.cityToAdd!);
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant CityPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    print(widget.cityToAdd);
+    // 当cityToAdd参数变化时，重新处理添加城市的逻辑
+    if (oldWidget.cityToAdd != widget.cityToAdd && widget.cityToAdd != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        addCity(widget.cityToAdd!);
+      });
+    }
   }
 
   // 过滤搜索列表项
@@ -86,12 +104,31 @@ class _CityPageState extends State<CityPage> {
           return DisplayCity.fromJson(json);
         }).toList();
         print('从本地存储加载城市列表成功');
-        _cityList =cityList;
+        setState(() {
+          _cityList = cityList;
+        });
       }
     } catch (e) {
       print('从本地存储加载城市列表失败: $e');
     }
-    return null;
+  }
+
+  // 添加城市到收藏列表
+  void addCity(DisplayCity city) {
+    setState(() {
+      // 检查城市是否已经存在
+      final existingCityIndex = _cityList.indexWhere((c) => c.id == city.id);
+      if (existingCityIndex == -1) {
+        // 城市不存在，添加到列表
+        _cityList.add(city);
+        // 保存到本地存储
+        _saveCityListToStorage(_cityList);
+        print('城市已添加到收藏列表: ${city.name}');
+      } else {
+        // 城市已存在
+        print('城市已在收藏列表中: ${city.name}');
+      }
+    });
   }
 
   // 获取热门城市列表

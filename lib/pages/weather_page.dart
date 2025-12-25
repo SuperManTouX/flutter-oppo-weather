@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_oppo_weather/constants/index.dart';
 import 'package:flutter_oppo_weather/services/weather/weather_service.dart';
 import 'package:flutter_oppo_weather/models/weather/weather_models.dart';
+import 'package:flutter_oppo_weather/models/display_city.dart';
 import 'package:flutter_oppo_weather/widget/Icon.dart';
 import 'package:jiffy/jiffy.dart';
 
@@ -14,7 +15,7 @@ class WeatherPage extends StatefulWidget {
   final bool isSearchResult;
 
   // 收藏按钮点击回调
-  final VoidCallback? onFavoritesPress;
+  final Function(DisplayCity?)? onFavoritesPress;
 
   const WeatherPage({
     super.key,
@@ -144,7 +145,12 @@ class _WeatherPageState extends State<WeatherPage> {
               title: Text('${widget.cityName}'),
               actions: [
                 IconButton(
-                  onPressed: widget.onFavoritesPress,
+                  onPressed: () {
+                    // 收藏列表按钮不传递城市信息
+                    if (widget.onFavoritesPress != null) {
+                      widget.onFavoritesPress!(null);
+                    }
+                  },
                   icon: const Icon(Icons.favorite_border),
                   tooltip: '收藏列表',
                 ),
@@ -157,17 +163,38 @@ class _WeatherPageState extends State<WeatherPage> {
             )
           : AppBar(
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: Text('搜索结果'),
+              title: Text(widget.cityName),
               actions: [
                 TextButton(
-                  onPressed: widget.onFavoritesPress,
+                  onPressed: () {
+                    // 取消按钮不传递城市信息
+                    if (widget.onFavoritesPress != null) {
+                      widget.onFavoritesPress!(null);
+                    }
+                  },
                   child: Text(
                     '取消',
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
                 TextButton(
-                  onPressed: widget.onFavoritesPress,
+                  onPressed: () {
+                    if (widget.onFavoritesPress != null && _nowResponse != null) {
+                      final city = DisplayCity(
+                        name: widget.cityName,
+                        id: widget.id,
+                        now: _nowResponse!.now,
+                      );
+                      widget.onFavoritesPress!(city);
+                      // 显示添加成功提示
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${widget.cityName}已添加到收藏列表'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  },
                   child: Text(
                     '添加',
                     style: TextStyle(color: Colors.white, fontSize: 16),

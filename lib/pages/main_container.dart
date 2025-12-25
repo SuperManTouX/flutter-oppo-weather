@@ -42,6 +42,9 @@ class _MainContainerState extends State<MainContainer>
   String _currentCityName = '';
   // 是否为搜索结果
   bool _isSearchResult = false;
+  
+  // 要添加到收藏列表的城市
+  DisplayCity? _cityToAdd;
 
   @override
   void initState() {
@@ -83,8 +86,15 @@ class _MainContainerState extends State<MainContainer>
   }
 
   /// 切换到收藏列表页面
-  void _switchToFavorites() {
+  void _switchToFavorites(DisplayCity? city) {
     if (_currentState == PageState.weather) {
+      // 如果有城市信息，设置要添加的城市
+      if (city != null) {
+        setState(() {
+          _cityToAdd = city;
+        });
+      }
+      
       setState(() {
         _currentState = PageState.favorites;
       });
@@ -125,7 +135,12 @@ class _MainContainerState extends State<MainContainer>
             child: CityPage(
               // 传递回调函数给收藏列表页面
               onCitySelect: _selectCity,
-              onBackPress: _switchToWeather,
+              onBackPress: () {
+                // 不传递城市信息，仅切换页面
+                _switchToFavorites(null);
+              },
+              // 传递要添加的城市
+              cityToAdd: _cityToAdd,
             ),
           ),
           // 天气页面（顶层）
