@@ -221,7 +221,7 @@ class _CityPageState extends State<CityPage> {
                                     ),
                                     SizedBox(height: 16),
                                     Text(
-                                      'No items found',
+                                      '无城市',
                                       style: TextStyle(
                                         fontSize: 18,
                                         color: Colors.grey,
@@ -280,7 +280,7 @@ class _CityPageState extends State<CityPage> {
                                                 crossAxisCount: 4,
                                                 mainAxisSpacing: 10,
                                                 crossAxisSpacing: 10,
-                                                childAspectRatio: 5,
+                                                childAspectRatio: 4,
                                               ),
                                           delegate: SliverChildBuilderDelegate(
                                             (context, index) {
@@ -294,7 +294,7 @@ class _CityPageState extends State<CityPage> {
                                                 .length, // 显示热门城市数量个标签
                                           ),
                                         ),
-                                        
+
                                         // 搜索结果
                                         if (_searchController.text.isNotEmpty)
                                           SliverToBoxAdapter(
@@ -367,51 +367,55 @@ class _CityPageState extends State<CityPage> {
             right: 10,
             duration: Duration(milliseconds: 300),
             curve: Curves.easeInOut,
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    focusNode: _searchFocusNode,
-                    decoration: InputDecoration(
-                      hintText: 'Search...',
-                      prefixIcon: Icon(Icons.search),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(Icons.clear),
-                              onPressed: () {
-                                _searchController.clear();
-                              },
-                            )
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                ),
-                // 取消按钮只在搜索界面显示
-                if (_isSearchFocused)
-                  Padding(
-                    padding: EdgeInsets.only(left: 10),
-                    child: TextButton(
-                      onPressed: () {
-                        _searchController.clear();
-                        _searchFocusNode.unfocus();
-                        setState(() {
-                          _isSearchFocused = false;
-                        });
-                      },
-                      child: Text(
-                        '取消',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
+            child: Container(
+              color: Colors.white,
+              padding: EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      decoration: InputDecoration(
+                        hintText: 'Search...',
+                        prefixIcon: Icon(Icons.search),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: Icon(Icons.clear),
+                                onPressed: () {
+                                  _searchController.clear();
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                     ),
                   ),
-              ],
+                  // 取消按钮只在搜索界面显示
+                  if (_isSearchFocused)
+                    Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: TextButton(
+                        onPressed: () {
+                          _searchController.clear();
+                          _searchFocusNode.unfocus();
+                          setState(() {
+                            _isSearchFocused = false;
+                          });
+                        },
+                        child: Text(
+                          '取消',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ],
@@ -553,7 +557,6 @@ class _CityPageState extends State<CityPage> {
         borderRadius: BorderRadius.circular(25),
         border: Border.all(color: Colors.blue.shade300, width: 1),
       ),
-
       child: InkWell(
         onTap: () {
           // 将SearchCity转换为DisplayCity
