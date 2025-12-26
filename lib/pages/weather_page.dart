@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_oppo_weather/constants/index.dart';
+import 'package:flutter_oppo_weather/routes/index.dart';
 import 'package:flutter_oppo_weather/services/weather/weather_service.dart';
 import 'package:flutter_oppo_weather/models/weather/weather_models.dart';
 import 'package:flutter_oppo_weather/models/display_city.dart';
@@ -150,6 +151,13 @@ class _WeatherPageState extends State<WeatherPage> {
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
               title: Text('${widget.cityName}'),
               actions: [
+                TextButton(
+                  onPressed: () {
+                    // 跳转到细节界面
+                    Navigator.pushNamed(context, RouteNames.detail);
+                  },
+                  child: Text("跳转到细节界面"),
+                ),
                 IconButton(
                   onPressed: () {
                     // 收藏列表按钮不传递城市信息
@@ -157,10 +165,7 @@ class _WeatherPageState extends State<WeatherPage> {
                       widget.onFavoritesPress!(null);
                     }
                   },
-                  icon: NetIcon(
-                    name: GlobalConfig.SYS_ICON["城市列表"]!,
-                    size: 24,
-                  ),
+                  icon: NetIcon(name: GlobalConfig.SYS_ICON["城市列表"]!, size: 24),
                   tooltip: '城市列表',
                 ),
                 IconButton(
