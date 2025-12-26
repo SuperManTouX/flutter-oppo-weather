@@ -137,15 +137,14 @@ class QWeatherService {
   // 获取热门城市列表
   Future<CityTopResponse> getTopCityList() async {
     try {
-      final service = QWeatherService();
-      final response = await service._dio.get(QWeatherConstants.geoTop);
+      final response = await _dio.get(QWeatherConstants.geoTop);
       return CityTopResponse.fromJson(response.data);
     } catch (e) {
       print('获取热门城市列表失败: $e');
       rethrow;
     }
   }
-
+  
   // 搜索城市
   Future<GeoCityResponse> searchCity({required String keyword}) async {
     try {
