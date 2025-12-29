@@ -43,6 +43,8 @@ dependencies:
   jiffy: ^6.2.3
   # 本地存储
   shared_preferences: ^2.2.2
+  # 图表库
+  fl_chart: ^0.66.0
 
 dev_dependencies:
   flutter_test:
