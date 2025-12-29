@@ -8,11 +8,8 @@ import 'package:flutter_oppo_weather/widget/Icon.dart';
 import 'package:jiffy/jiffy.dart';
 
 class WeatherPage extends StatefulWidget {
-  // 城市位置码参数，默认为北京
-  final String id;
-
-  // 城市名称参数，默认为北京
-  final String cityName;
+  // 城市位置信息参数
+  final DisplayCity location;
   final bool isSearchResult;
   // 城市列表长度
   final int cityListLength;
@@ -24,8 +21,7 @@ class WeatherPage extends StatefulWidget {
 
   const WeatherPage({
     super.key,
-    this.id = '101010100',
-    this.cityName = '北京',
+    this.location = const DisplayCity(name: '北京', id: '101010100'),
     this.isSearchResult = false,
     this.cityListLength = 0,
     this.currentCityIndex = 0,
@@ -68,7 +64,7 @@ class _WeatherPageState extends State<WeatherPage> {
     });
     try {
       final service = QWeatherService();
-      final data = await service.getWeatherNow(id: widget.id);
+      final data = await service.getWeatherNow(id: widget.location.id);
       setState(() {
         _nowResponse = data;
         _isLoading = false;
@@ -88,7 +84,7 @@ class _WeatherPageState extends State<WeatherPage> {
     });
     try {
       final service = QWeatherService();
-      final data = await service.getWeather7d(location: widget.id);
+      final data = await service.getWeather7d(location: widget.location.id);
       setState(() {
         _forecastData = data.daily;
         _isLoading = false;
@@ -108,7 +104,7 @@ class _WeatherPageState extends State<WeatherPage> {
     });
     try {
       final service = QWeatherService();
-      final data = await service.getWeather24h(location: widget.id);
+      final data = await service.getWeather24h(location: widget.location.id);
       setState(() {
         _hourlyData = data.hourly;
         _isLoading = false;
@@ -136,7 +132,7 @@ class _WeatherPageState extends State<WeatherPage> {
   void didUpdateWidget(covariant WeatherPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     // 当location参数变化时，重新获取天气数据
-    if (oldWidget.id != widget.id) {
+    if (oldWidget.location.id != widget.location.id) {
       _fetchWeatherData();
       _fetchWeatherForecast();
       _fetchWeather24h();
@@ -149,12 +145,12 @@ class _WeatherPageState extends State<WeatherPage> {
       appBar: !widget.isSearchResult
           ? AppBar(
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: Text('${widget.cityName}'),
+              title: Text('${widget.location.name}'),
               actions: [
                 TextButton(
                   onPressed: () {
                     // 跳转到细节界面
-                    Navigator.pushNamed(context, RouteNames.detail);
+                    Navigator.pushNamed(context, RouteNames.detail, arguments: widget.location);
                   },
                   child: Text("跳转到细节界面"),
                 ),
@@ -177,7 +173,7 @@ class _WeatherPageState extends State<WeatherPage> {
             )
           : AppBar(
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: Text(widget.cityName),
+              title: Text(widget.location.name),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -196,8 +192,8 @@ class _WeatherPageState extends State<WeatherPage> {
                     if (widget.onFavoritesPress != null &&
                         _nowResponse != null) {
                       final city = DisplayCity(
-                        name: widget.cityName,
-                        id: widget.id,
+                        name: widget.location.name,
+                        id: widget.location.id,
                         now: _nowResponse!.now,
                       );
                       widget.onFavoritesPress!(city);

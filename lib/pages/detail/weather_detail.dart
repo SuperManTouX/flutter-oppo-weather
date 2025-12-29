@@ -1,30 +1,23 @@
 import 'package:flutter/material.dart';
+import '../../models/display_city.dart';
+import 'hourly_tab_content.dart';
+import 'daily_tab_content.dart';
+import 'future15_tab_content.dart';
+import 'air_quality_tab_content.dart';
 
 class WeatherDetail extends StatelessWidget {
-  const WeatherDetail({super.key});
+  final DisplayCity location;
 
-  // TabBar(
-  //           controller: _controller,
-  //           isScrollable: true,          // 关键：允许横向滚动
-  //           tabAlignment: TabAlignment.start, // 起始对齐
-  //           labelColor: Colors.white,
-  //           unselectedLabelColor: Colors.white70,
-  //           indicator: const BoxDecoration(
-  //             border: Border(
-  //               bottom: BorderSide(color: Colors.white, width: 3),
-  //             ),
-  //           ),
-  //           tabs: tabs.map((t) => Tab(text: t)).toList(),
-  //         )
+  const WeatherDetail({super.key, required this.location});
   @override
   Widget build(BuildContext context) {
     // DefaultTabController 管理 Tab 切换状态，length 是 Tab 数量
     return DefaultTabController(
-      length: 3, // 必须和 Tab 数量一致
+      length: 4, // 必须和 Tab 数量一致
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('天气详情'),
-          backgroundColor: const Color.fromARGB(255, 45, 125, 241),
+          title: Text('${location.name} 天气详情'),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           // 顶部 TabBar 配置
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(48),
@@ -52,9 +45,10 @@ class WeatherDetail extends StatelessWidget {
                 ),
                 // Tab 列表（天气场景适配）
                 tabs: const [
-                  Tab(text: '今日', icon: Icon(Icons.sunny, size: 16)),
-                  Tab(text: '未来7天', icon: Icon(Icons.calendar_today, size: 16)),
-                  Tab(text: '空气质量', icon: Icon(Icons.air, size: 16)),
+                  Tab(text: '逐小时'),
+                  Tab(text: '每日'),
+                  Tab(text: '15日'),
+                  Tab(text: '空气质量'),
                 ],
               ),
             ),
@@ -64,40 +58,13 @@ class WeatherDetail extends StatelessWidget {
         body: const TabBarView(
           // 注意：TabBarView 的子组件顺序必须和 TabBar 一一对应
           children: [
-            HomeTabContent(),
-            MessageTabContent(),
-            ProfileTabContent(),
+            HourlyTabContent(),
+            DailyTabContent(),
+            Future15TabContent(),
+            AirQualityTabContent(),
           ],
         ),
       ),
     );
-  }
-}
-
-// 各 Tab 对应的内容组件
-class HomeTabContent extends StatelessWidget {
-  const HomeTabContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('首页内容'));
-  }
-}
-
-class MessageTabContent extends StatelessWidget {
-  const MessageTabContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('消息内容'));
-  }
-}
-
-class ProfileTabContent extends StatelessWidget {
-  const ProfileTabContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('我的内容'));
   }
 }

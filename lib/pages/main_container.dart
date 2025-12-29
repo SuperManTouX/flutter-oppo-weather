@@ -371,8 +371,7 @@ class _MainContainerState extends State<MainContainer>
                 // 根据当前页面状态决定显示内容
                 child: _currentState == PageState.resultWeather
                     ? WeatherPage(
-                        id: _currentLocation,
-                        cityName: _currentCityName,
+                        location: DisplayCity(id: _currentLocation, name: _currentCityName),
                         // 传递回调函数给天气页面
                         onFavoritesPress: _switchToFavorites,
                         // 传递是否为搜索结果
@@ -383,8 +382,7 @@ class _MainContainerState extends State<MainContainer>
                       )
                     : (_cityList.isEmpty
                           ? WeatherPage(
-                              id: _currentLocation,
-                              cityName: _currentCityName,
+                              location: DisplayCity(id: _currentLocation, name: _currentCityName),
                               // 传递回调函数给天气页面
                               onFavoritesPress: _switchToFavorites,
                               // 传递是否为搜索结果
@@ -410,8 +408,7 @@ class _MainContainerState extends State<MainContainer>
                               itemBuilder: (context, index) {
                                 final city = _cityList[index];
                                 return WeatherPage(
-                                  id: city.id,
-                                  cityName: city.name,
+                                  location: city,
                                   // 传递回调函数给天气页面
                                   onFavoritesPress: _switchToFavorites,
                                   // 传递是否为搜索结果
