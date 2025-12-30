@@ -54,9 +54,9 @@ class _WeatherDetailState extends State<WeatherDetail>
     } else if (index == 1) {
       await _fetchWeatherForecast();
     } else if (index == 2) {
-      // TODO: 15天天气数据
+      // TODO(WIP): 15天天气数据
     } else if (index == 3) {
-      // TODO: 空气质量数据
+      // TODO(WIP): 空气质量数据
     }
   }
 
@@ -73,7 +73,7 @@ class _WeatherDetailState extends State<WeatherDetail>
         _loadDataForActiveTab(_tabController.index);
       }
     });
-    // TODO：要从路由参数中获取进入的TabIndex
+    // TODO(WIP）：要从路由参数中获取进入的TabIndex
     _loadDataForActiveTab(0); // 默认加载第一个tab的数据
   }
 

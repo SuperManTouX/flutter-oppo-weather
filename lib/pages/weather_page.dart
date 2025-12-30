@@ -5,6 +5,7 @@ import 'package:flutter_oppo_weather/services/weather/weather_service.dart';
 import 'package:flutter_oppo_weather/models/weather/weather_models.dart';
 import 'package:flutter_oppo_weather/models/display_city.dart';
 import 'package:flutter_oppo_weather/widget/Icon.dart';
+import 'package:flutter_oppo_weather/utils/oppo_date_utils.dart';
 import 'package:jiffy/jiffy.dart';
 
 class WeatherPage extends StatefulWidget {
@@ -407,8 +408,8 @@ class _WeatherPageState extends State<WeatherPage> {
       child: Column(
         children: [
           ...List.generate(7, (index) {
-            final Jiffy dayJ = Jiffy.parse(_forecastData![index].fxDate);
-            final String day = dayJ.format(pattern: "MM月dd日");
+            final Jiffy JDay = Jiffy.parse(_forecastData![index].fxDate);
+            final String day = JDay.format(pattern: "MM月dd日");
 
             return InkWell(
               onTap: () {
@@ -434,7 +435,7 @@ class _WeatherPageState extends State<WeatherPage> {
                       SizedBox(width: 10),
                       // jiffy计算星期几
                       Text(
-                        getWeekdayText(dayJ),
+                        OppoDateUtils.getWeekdayText(JDay),
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white,
@@ -778,23 +779,6 @@ class _WeatherPageState extends State<WeatherPage> {
       return Jiffy.parse(timeStr).format(pattern: 'HH:mm');
     } catch (e) {
       return timeStr;
-    }
-  }
-
-  /// 格式化周几
-  String getWeekdayText(Jiffy targetDate) {
-    Jiffy today = Jiffy.parse(DateTime.now().toString()).startOf(Unit.day);
-    Jiffy target = targetDate.startOf(Unit.day);
-    Jiffy tomorrow = today.add(days: 1).startOf(Unit.day);
-
-    if (target.isSame(today, unit: Unit.day)) {
-      return "今天";
-    } else if (target.isSame(tomorrow, unit: Unit.day)) {
-      return "明天";
-    } else {
-      String fullWeekday = target.format(pattern: "EEEE");
-      // 将"星期"替换为"周"
-      return fullWeekday.replaceFirst("星期", "周");
     }
   }
 }
