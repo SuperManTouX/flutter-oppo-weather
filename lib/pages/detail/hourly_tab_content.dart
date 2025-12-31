@@ -35,6 +35,7 @@ class _HourlyTabContentState extends State<HourlyTabContent> {
     }
     return Jiffy.parse(timeStr, pattern: "yyyy-MM-dd'T'HH:mmZ");
   }
+
   // 获取24小时天气数据
   Future<void> _fetchWeather24h() async {
     setState(() {});
@@ -59,7 +60,6 @@ class _HourlyTabContentState extends State<HourlyTabContent> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color.fromARGB(255, 116, 221, 95),
       child: Container(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -99,31 +99,32 @@ class _HourlyTabContentState extends State<HourlyTabContent> {
               children: [
                 Column(
                   children: [
+                    Text('温度', style: Theme.of(context).textTheme.titleLarge),
                     Text(
-                      '12:00',
+                      '${_hourlyData?[_selectedIndex].temp ?? '0'}℃',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    Text('20℃', style: Theme.of(context).textTheme.titleLarge),
                   ],
                 ),
                 Column(
                   children: [
+                    Text('降水概率', style: Theme.of(context).textTheme.titleLarge),
                     Text(
-                      '12:00',
+                      '${_hourlyData?[_selectedIndex].pop ?? '0'}%',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    Text('20℃', style: Theme.of(context).textTheme.titleLarge),
                   ],
                 ),
                 Column(
                   children: [
+                    Text('湿度', style: Theme.of(context).textTheme.titleLarge),
                     Text(
-                      '12:00',
+                      '${_hourlyData?[_selectedIndex].humidity ?? '0'}%',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    Text('20℃', style: Theme.of(context).textTheme.titleLarge),
                   ],
                 ),
+
                 // 其他小时...
               ],
             ),
