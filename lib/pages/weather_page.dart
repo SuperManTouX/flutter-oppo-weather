@@ -356,13 +356,15 @@ class _WeatherPageState extends State<WeatherPage> {
             pattern: "yyyy-MM-dd'T'HH:mmZ",
           ).format(pattern: "HH:mm");
           return Material(
-            // 透明背景，不影响原有样式
             color: Colors.transparent,
-            // 圆角与子容器 Container 保持一致，约束水波纹范围
             borderRadius: BorderRadius.circular(8),
             child: InkWell(
               onTap: () {
-                print("点击了$day");
+                Navigator.pushNamed(
+                  context,
+                  RouteNames.detail,
+                  arguments: {"location": widget.location, "index": 0},
+                );
               },
               borderRadius: BorderRadius.circular(5),
               child: Container(
@@ -413,7 +415,11 @@ class _WeatherPageState extends State<WeatherPage> {
 
             return InkWell(
               onTap: () {
-                print("点击了$day");
+                Navigator.pushNamed(
+                  context,
+                  RouteNames.detail,
+                  arguments: {"location": widget.location, "index": 1},
+                );
               },
               borderRadius: BorderRadius.circular(5),
               child: Container(
@@ -476,7 +482,13 @@ class _WeatherPageState extends State<WeatherPage> {
               borderRadius: BorderRadius.circular(25),
             ),
             child: TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  RouteNames.detail,
+                  arguments: {"location": widget.location, "index": 2},
+                );
+              },
               child: Text(
                 '未来15天天气详情',
                 style: const TextStyle(fontSize: 14, color: Colors.white),

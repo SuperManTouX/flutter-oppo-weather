@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_oppo_weather/models/weather/daily.dart';
-import 'package:flutter_oppo_weather/models/weather/hourly.dart';
 import 'package:flutter_oppo_weather/services/weather/qweather_service.dart';
 import '../../models/display_city.dart';
 import 'hourly_tab_content.dart';
@@ -10,8 +9,9 @@ import 'air_quality_tab_content.dart';
 
 class WeatherDetail extends StatefulWidget {
   final DisplayCity location;
+  final int initialIndex;
 
-  const WeatherDetail({super.key, required this.location});
+  const WeatherDetail({super.key, required this.location, this.initialIndex = 0});
 
   @override
   State<WeatherDetail> createState() => _WeatherDetailState();
@@ -63,8 +63,12 @@ class _WeatherDetailState extends State<WeatherDetail>
   @override
   void initState() {
     super.initState();
-    // 初始化 TabController
-    _tabController = TabController(length: 4, vsync: this);
+    // 初始化 TabController，使用从路由参数获取的initialIndex
+    _tabController = TabController(
+      length: 4, 
+      vsync: this, 
+      initialIndex: widget.initialIndex // 使用路由参数中的索引
+    );
     // 添加 Tab 切换监听
     _tabController.addListener(() {
       print('当前tab索引: ${_tabController.index}');
@@ -73,8 +77,8 @@ class _WeatherDetailState extends State<WeatherDetail>
         _loadDataForActiveTab(_tabController.index);
       }
     });
-    // TODO(WIP）：要从路由参数中获取进入的TabIndex
-    _loadDataForActiveTab(0); // 默认加载第一个tab的数据
+    // 使用路由参数中的索引加载对应tab的数据
+    _loadDataForActiveTab(widget.initialIndex);
   }
 
   @override
