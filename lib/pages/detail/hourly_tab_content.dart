@@ -22,13 +22,13 @@ class HourlyTabContent extends StatefulWidget {
 
 class _HourlyTabContentState extends State<HourlyTabContent> {
   List<Hourly>? _hourlyData;
-  int _selectedIndex = -1;
+  int _lineSelectedIndex = 0;
   // 获取当前时间
   Jiffy get JToday {
     if (_hourlyData == null || _hourlyData!.isEmpty) {
       return Jiffy.now();
     }
-    final index = _selectedIndex > -1 ? _selectedIndex : 0;
+    final index = _lineSelectedIndex > -1 ? _lineSelectedIndex : 0;
     final timeStr = _hourlyData![index].fxTime;
     if (timeStr.isEmpty) {
       return Jiffy.now();
@@ -59,6 +59,11 @@ class _HourlyTabContentState extends State<HourlyTabContent> {
 
   @override
   Widget build(BuildContext context) {
+    if (_hourlyData == null || _hourlyData!.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     return Card(
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -85,10 +90,10 @@ class _HourlyTabContentState extends State<HourlyTabContent> {
               margin: const EdgeInsets.only(top: 16),
               child: InteractiveTemperatureChart(
                 hourlyData: _hourlyData,
-                selectedIndex: _selectedIndex,
+                selectedIndex: _lineSelectedIndex,
                 onSelectedIndexChanged: (index) {
                   setState(() {
-                    _selectedIndex = index;
+                    _lineSelectedIndex = index;
                   });
                 },
               ),
@@ -101,7 +106,7 @@ class _HourlyTabContentState extends State<HourlyTabContent> {
                   children: [
                     Text('温度', style: Theme.of(context).textTheme.titleLarge),
                     Text(
-                      '${_hourlyData?[_selectedIndex].temp ?? '0'}℃',
+                      '${_hourlyData?[_lineSelectedIndex].temp ?? '0'}℃',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],
@@ -110,7 +115,7 @@ class _HourlyTabContentState extends State<HourlyTabContent> {
                   children: [
                     Text('降水概率', style: Theme.of(context).textTheme.titleLarge),
                     Text(
-                      '${_hourlyData?[_selectedIndex].pop ?? '0'}%',
+                      '${_hourlyData?[_lineSelectedIndex].pop ?? '0'}%',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],
@@ -119,7 +124,7 @@ class _HourlyTabContentState extends State<HourlyTabContent> {
                   children: [
                     Text('湿度', style: Theme.of(context).textTheme.titleLarge),
                     Text(
-                      '${_hourlyData?[_selectedIndex].humidity ?? '0'}%',
+                      '${_hourlyData?[_lineSelectedIndex].humidity ?? '0'}%',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],
