@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_oppo_weather/models/weather/daily.dart';
-import 'package:flutter_oppo_weather/services/weather/qweather_service.dart';
+import 'package:jiffy/jiffy.dart';
 import '../../models/display_city.dart';
 import 'hourly_tab_content.dart';
 import 'daily_tab_content.dart';
@@ -10,8 +9,15 @@ import 'air_quality_tab_content.dart';
 class WeatherDetail extends StatefulWidget {
   final DisplayCity location;
   final int initialIndex;
+  // 点击的日期，用于 DailyTabContent
+  final Jiffy? clickedJDate;
 
-  const WeatherDetail({super.key, required this.location, this.initialIndex = 0});
+  const WeatherDetail({
+    super.key,
+    required this.location,
+    this.initialIndex = 0,
+    this.clickedJDate,
+  });
 
   @override
   State<WeatherDetail> createState() => _WeatherDetailState();
@@ -19,66 +25,18 @@ class WeatherDetail extends StatefulWidget {
 
 class _WeatherDetailState extends State<WeatherDetail>
     with SingleTickerProviderStateMixin {
-  final List<String> _tabTitles = ['逐小时', '7天', '15天', '空气质量'];
-  bool _isLoading = false;
-  List<Daily>? _forecastData;
+  final List<String> _tabTitles = ['逐小时', '每日', '15天', '空气质量'];
   late TabController _tabController;
-
-  // 获取七天的天气数据
-  Future<void> _fetchWeatherForecast() async {
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      final service = QWeatherService();
-      final data = await service.getWeather7d(location: widget.location.id);
-      setState(() {
-        _forecastData = data.daily;
-        _isLoading = false;
-      });
-    } catch (e) {
-      print('获取天气数据失败: $e');
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
- 
-
-  // 依据激活的tab，加载对应数据
-  Future<void> _loadDataForActiveTab(int index) async {
-    if (index == 0) {
-      // 逐小时天气数据
-
-    } else if (index == 1) {
-      await _fetchWeatherForecast();
-    } else if (index == 2) {
-      // TODO(WIP): 15天天气数据
-    } else if (index == 3) {
-      // TODO(WIP): 空气质量数据
-    }
-  }
 
   @override
   void initState() {
     super.initState();
     // 初始化 TabController，使用从路由参数获取的initialIndex
     _tabController = TabController(
-      length: 4, 
-      vsync: this, 
-      initialIndex: widget.initialIndex // 使用路由参数中的索引
+      length: 4,
+      vsync: this,
+      initialIndex: widget.initialIndex, // 使用路由参数中的索引
     );
-    // 添加 Tab 切换监听
-    _tabController.addListener(() {
-      print('当前tab索引: ${_tabController.index}');
-      if (!_tabController.indexIsChanging) {
-        // 当 Tab 切换完成时加载对应数据
-        _loadDataForActiveTab(_tabController.index);
-      }
-    });
-    // 使用路由参数中的索引加载对应tab的数据
-    _loadDataForActiveTab(widget.initialIndex);
   }
 
   @override
@@ -131,12 +89,10 @@ class _WeatherDetailState extends State<WeatherDetail>
         controller: _tabController, // 使用我们自己的 TabController
         // 注意：TabBarView 的子组件顺序必须和 TabBar 一一对应
         children: [
-          HourlyTabContent(
-            location: widget.location,
-          ),
-          DailyTabContent(),
-          Future15TabContent(),
-          AirQualityTabContent(),
+          HourlyTabContent(location: widget.location),
+          DailyTabContent(location: widget.location, clickedJDate: widget.clickedJDate),
+          Future15TabContent(location: widget.location),
+          AirQualityTabContent(location: widget.location),
         ],
       ),
     );

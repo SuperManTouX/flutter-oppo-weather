@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_oppo_weather/models/display_city.dart';
 import 'package:flutter_oppo_weather/models/weather/hourly.dart';
 import 'package:flutter_oppo_weather/pages/detail/interactive_temperature_chart.dart';
-import 'package:flutter_oppo_weather/pages/detail/line_chart_painter.dart';
 import 'package:flutter_oppo_weather/services/weather/qweather_service.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_oppo_weather/utils/oppo_date_utils.dart';
-import 'package:flutter_oppo_weather/widget/Icon.dart';
 import 'package:jiffy/jiffy.dart';
 
 class HourlyTabContent extends StatefulWidget {

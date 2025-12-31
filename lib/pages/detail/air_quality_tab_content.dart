@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_oppo_weather/models/display_city.dart';
 
 class AirQualityTabContent extends StatelessWidget {
-  const AirQualityTabContent({super.key});
+  final DisplayCity location;
+  const AirQualityTabContent({super.key, required this.location});
 
   @override
   Widget build(BuildContext context) {

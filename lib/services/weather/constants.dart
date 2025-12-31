@@ -15,7 +15,8 @@ class QWeatherConstants {
   // API端点
   static const String geoCity = '/geo/v2/city/lookup'; // 城市查询
   static const String geoTop = '/geo/v2/city/top'; // 热门城市查询
-  static const String weatherNow = '/v7/weather/now'; // 当前天气
+  static const String weatherNow = '/v7/weather/now'; // 实时天气
+  static const String weatherHistorical = '/v7/historical/weather'; // 历史天气
   static const String weather3d = '/v7/weather/3d'; // 3天天气
   static const String weather7d = '/v7/weather/7d'; // 7天天气
   static const String weather10d = '/v7/weather/10d'; // 10天天气

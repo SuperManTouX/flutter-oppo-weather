@@ -418,7 +418,7 @@ class _WeatherPageState extends State<WeatherPage> {
                 Navigator.pushNamed(
                   context,
                   RouteNames.detail,
-                  arguments: {"location": widget.location, "index": 1},
+                  arguments: {"location": widget.location, "index": 1,"clickedJDate":JDay},
                 );
               },
               borderRadius: BorderRadius.circular(5),
