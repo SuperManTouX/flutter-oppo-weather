@@ -32,11 +32,13 @@ abstract class BaseTemperatureChartPainter<T extends TemperatureData> extends Cu
   final List<T> data;
   final int selectedIndex;
   final double pointWidth;
+  final ColorScheme colorScheme;
 
   BaseTemperatureChartPainter({
     required this.data,
     required this.selectedIndex,
     required this.pointWidth,
+    required this.colorScheme,
   });
 
   // 获取所有温度值用于计算范围
@@ -94,7 +96,7 @@ abstract class BaseTemperatureChartPainter<T extends TemperatureData> extends Cu
     if (selectedIndex != -1 && selectedIndex < points.length) {
       final selectedPoint = points[selectedIndex];
       final columnPaint = Paint()
-        ..color = Colors.red.withOpacity(0.2)
+        ..color = colorScheme.primary.withOpacity(0.2)
         ..style = PaintingStyle.fill;
       final columnRect = Rect.fromLTRB(
         selectedPoint.dx - pointWidth / 2,
@@ -138,7 +140,7 @@ abstract class BaseTemperatureChartPainter<T extends TemperatureData> extends Cu
 
     for (int i = 0; i < data.length; i++) {
       final isSelected = i == selectedIndex;
-      final highlightColor = isSelected ? Colors.red : Colors.black;
+      final highlightColor = isSelected ? colorScheme.primary : Colors.black;
       final point = referencePoints[i];
 
       // 初始 Y 坐标偏移

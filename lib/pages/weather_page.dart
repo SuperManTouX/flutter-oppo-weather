@@ -22,7 +22,7 @@ class WeatherPage extends StatefulWidget {
 
   const WeatherPage({
     super.key,
-    this.location = const DisplayCity(name: '北京', id: '101010100'),
+    this.location = const DisplayCity(name: '北京', id: '101010100', latitude: "39.9042", longitude: "116.4074"),
     this.isSearchResult = false,
     this.cityListLength = 0,
     this.currentCityIndex = 0,
@@ -195,6 +195,8 @@ class _WeatherPageState extends State<WeatherPage> {
                       final city = DisplayCity(
                         name: widget.location.name,
                         id: widget.location.id,
+                        latitude: widget.location.latitude,
+                        longitude: widget.location.longitude,
                         now: _nowResponse!.now,
                       );
                       widget.onFavoritesPress!(city);

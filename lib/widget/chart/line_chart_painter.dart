@@ -9,10 +9,12 @@ class LineChartPainter extends BaseTemperatureChartPainter<Hourly> {
     required List<Hourly> hourlyData,
     required int selectedIndex,
     required double pointWidth,
+    required ColorScheme colorScheme,
   }) : super(
     data: hourlyData,
     selectedIndex: selectedIndex,
     pointWidth: pointWidth,
+    colorScheme: colorScheme,
   );
 
   @override
@@ -62,6 +64,7 @@ class LineChartPainter extends BaseTemperatureChartPainter<Hourly> {
   @override
   bool shouldRepaint(covariant LineChartPainter oldDelegate) {
     return oldDelegate.data != data ||
-        oldDelegate.selectedIndex != selectedIndex;
+        oldDelegate.selectedIndex != selectedIndex ||
+        oldDelegate.colorScheme != colorScheme;
   }
 }

@@ -563,6 +563,8 @@ class _CityPageState extends State<CityPage> {
           final displayCity = DisplayCity(
             name: city.name,
             id: city.id,
+            latitude: city.lat,
+            longitude: city.lon,
             now: null, // 初始时不包含天气数据
           );
           // 调用回调函数传递城市信息
@@ -596,6 +598,8 @@ class _CityPageState extends State<CityPage> {
           final displayCity = DisplayCity(
             name: city.name,
             id: city.id,
+            latitude: city.lat,
+            longitude: city.lon,
             now: null, // 初始时不包含天气数据
           );
           // 调用回调函数传递城市信息

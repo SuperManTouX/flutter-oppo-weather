@@ -72,6 +72,7 @@ class InteractiveTemperatureChart extends StatelessWidget {
                     hourlyData: hourlyData!,
                     selectedIndex: selectedIndex,
                     pointWidth: pointWidth,
+                    colorScheme: Theme.of(context).colorScheme,
                   ),
                 ),
               ),

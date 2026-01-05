@@ -56,8 +56,9 @@ class _HourlyTabContentState extends State<HourlyTabContent> {
   @override
   Widget build(BuildContext context) {
     if (_hourlyData == null || _hourlyData!.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
+      return Container(
+        constraints: BoxConstraints(minHeight: 200),
+        child: Center(child: CircularProgressIndicator()),
       );
     }
     return Card(

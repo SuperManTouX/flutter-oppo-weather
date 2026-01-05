@@ -11,7 +11,7 @@ class InteractiveDailyTemperatureChart extends StatelessWidget {
   const InteractiveDailyTemperatureChart({
     super.key,
     this.dailyData,
-    this.selectedIndex = -1,
+    this.selectedIndex = 0,
     this.onSelectedIndexChanged,
   });
 
@@ -58,7 +58,7 @@ class InteractiveDailyTemperatureChart extends StatelessWidget {
                 final x = index * pointWidth + pointWidth / 2;
                 return Positioned(
                   left: x - 12,
-                  top: 40,
+                  top: 50,
                   child: QIcon(
                     iconCode: dailyData![index].iconDay,
                     size: 24,
@@ -72,6 +72,7 @@ class InteractiveDailyTemperatureChart extends StatelessWidget {
                     dailyData: dailyData!,
                     selectedIndex: selectedIndex,
                     pointWidth: pointWidth,
+                    colorScheme: Theme.of(context).colorScheme,
                   ),
                 ),
               ),

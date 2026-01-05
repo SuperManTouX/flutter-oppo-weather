@@ -19,7 +19,7 @@ class _Future15TabContentState extends State<Future15TabContent> {
   List<Daily>? dailyList15;
   // 当前选中的日期索引
   int selectedIndex = 0;
-  
+
   // 获取当前选中的日期
   Jiffy get JToday {
     if (dailyList15 == null || dailyList15!.isEmpty) {
@@ -62,7 +62,10 @@ class _Future15TabContentState extends State<Future15TabContent> {
   @override
   Widget build(BuildContext context) {
     if (dailyList15 == null || dailyList15!.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return Container(
+        constraints: BoxConstraints(minHeight: 200),
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
     return Card(
       child: Container(

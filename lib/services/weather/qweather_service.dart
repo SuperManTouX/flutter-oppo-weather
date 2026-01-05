@@ -162,4 +162,21 @@ class QWeatherService {
       rethrow;
     }
   }
+
+  // 获取当前空气质量
+  Future<AirQualityResponse> getAirQualityCurrent({required String latitude, required String longitude}) async {
+    try {
+      final response = await _dio.get(
+        '${QWeatherConstants.airQualityCurrent}/$latitude/$longitude',
+      );
+      return AirQualityResponse.fromJson(response.data);
+    } catch (e) {
+      print('获取空气质量失败: $e');
+      if (e is DioException) {
+        print('Dio错误类型: ${e.type}');
+        print('错误消息: ${e.message}');
+      }
+      rethrow;
+    }
+  }
 }

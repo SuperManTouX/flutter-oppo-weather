@@ -3,6 +3,8 @@ export './now.dart';
 export './refer.dart';
 export './daily.dart';
 export './hourly.dart';
+export './air_quality.dart';
+export './air_quality_response.dart';
 export './weather_now_response.dart';
 export './weather_forecast_response.dart';
 export './weather_24h_response.dart';

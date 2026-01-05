@@ -6,6 +6,36 @@ import 'daily_tab_content.dart';
 import 'future15_tab_content.dart';
 import 'air_quality_tab_content.dart';
 
+// 封装TabContent的组件，用于添加灰色间隔块
+class TabContentWrapper extends StatelessWidget {
+  final Widget child;
+  final double height;
+  final Color color;
+  
+  const TabContentWrapper({
+    super.key,
+    required this.child,
+    this.height = 8,
+    this.color = const Color.fromARGB(110, 158, 158, 158),
+  });
+  
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // 灰色间隔块
+        SizedBox(
+          height: height,
+          width: double.infinity,
+          child: ColoredBox(color: color),
+        ),
+        // 原始内容
+        child,
+      ],
+    );
+  }
+}
+
 class WeatherDetail extends StatefulWidget {
   final DisplayCity location;
   final int initialIndex;
@@ -62,7 +92,7 @@ class _WeatherDetailState extends State<WeatherDetail>
               tabAlignment: TabAlignment.start, // 起始对齐 重要
               isScrollable: true, // 开启滚动（适配固定宽度+多Tab场景）
               indicatorSize: TabBarIndicatorSize.tab, // 指示器适配Tab宽度
-              indicatorColor: Colors.white, // 指示器颜色
+              indicatorColor: const Color.fromARGB(255, 15, 15, 15), // 指示器颜色
               indicatorWeight: 2, // 指示器高度（更细更协调）
               // 文字颜色配置
               unselectedLabelColor: const Color.fromARGB(179, 255, 255, 255),
@@ -89,10 +119,11 @@ class _WeatherDetailState extends State<WeatherDetail>
         controller: _tabController, // 使用我们自己的 TabController
         // 注意：TabBarView 的子组件顺序必须和 TabBar 一一对应
         children: [
-          HourlyTabContent(location: widget.location),
-          DailyTabContent(location: widget.location, clickedJDate: widget.clickedJDate),
-          Future15TabContent(location: widget.location),
-          AirQualityTabContent(location: widget.location),
+          // 使用封装组件包裹每个TabContent
+          TabContentWrapper(child: HourlyTabContent(location: widget.location)),
+          TabContentWrapper(child: DailyTabContent(location: widget.location, clickedJDate: widget.clickedJDate)),
+          TabContentWrapper(child: Future15TabContent(location: widget.location)),
+          TabContentWrapper(child: AirQualityTabContent(location: widget.location)),
         ],
       ),
     );

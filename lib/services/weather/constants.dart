@@ -22,4 +22,5 @@ class QWeatherConstants {
   static const String weather10d = '/v7/weather/10d'; // 10天天气
   static const String weather15d = '/v7/weather/15d'; // 15天天气
   static const String weather24h = '/v7/weather/24h'; // 24小时天气
+  static const String airQualityCurrent = '/airquality/v1/current'; // 空气质量当前数据
 }

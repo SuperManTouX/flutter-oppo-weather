@@ -17,11 +17,15 @@ class MainContainer extends StatefulWidget {
   // 初始显示的城市信息
   final String initialLocation;
   final String initialCityName;
+  final String initialLatitude;
+  final String initialLongitude;
 
   const MainContainer({
     Key? key,
     this.initialLocation = '101010100',
     this.initialCityName = '北京',
+    this.initialLatitude = '39.9042',
+    this.initialLongitude = '116.4074',
   }) : super(key: key);
 
   @override
@@ -42,6 +46,8 @@ class _MainContainerState extends State<MainContainer>
   // 当前选中的城市信息
   String _currentLocation = '';
   String _currentCityName = '';
+  String _initialLatitude = '';
+  String _initialLongitude = '';
   // 是否为搜索结果
   bool _isSearchResult = false;
 
@@ -61,6 +67,8 @@ class _MainContainerState extends State<MainContainer>
     // 初始化当前城市信息
     _currentLocation = widget.initialLocation;
     _currentCityName = widget.initialCityName;
+    _initialLatitude = widget.initialLatitude;
+    _initialLongitude = widget.initialLongitude;
 
     // 初始化动画控制器
     _animationController = AnimationController(
@@ -371,7 +379,12 @@ class _MainContainerState extends State<MainContainer>
                 // 根据当前页面状态决定显示内容
                 child: _currentState == PageState.resultWeather
                     ? WeatherPage(
-                        location: DisplayCity(id: _currentLocation, name: _currentCityName),
+                        location: DisplayCity(
+                          id: _currentLocation,
+                          name: _currentCityName,
+                          latitude: _initialLatitude,
+                          longitude: _initialLongitude,
+                        ),
                         // 传递回调函数给天气页面
                         onFavoritesPress: _switchToFavorites,
                         // 传递是否为搜索结果
@@ -382,7 +395,13 @@ class _MainContainerState extends State<MainContainer>
                       )
                     : (_cityList.isEmpty
                           ? WeatherPage(
-                              location: DisplayCity(id: _currentLocation, name: _currentCityName),
+                              location: DisplayCity(
+                                id: _currentLocation,
+                                name: _currentCityName,
+                                latitude: _initialLatitude,
+                                longitude:
+                                    _initialLongitude,
+                              ),
                               // 传递回调函数给天气页面
                               onFavoritesPress: _switchToFavorites,
                               // 传递是否为搜索结果

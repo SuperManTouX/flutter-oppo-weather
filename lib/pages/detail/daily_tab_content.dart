@@ -93,79 +93,88 @@ class _DailyTabContentState extends State<DailyTabContent> {
     return Card(
       child: Padding(
         padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // 城市名和日期选择器
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(widget.location.name),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.chevron_left),
-                      onPressed: currentIndex == 0 ? null : _previousDay,
-                      disabledColor: Colors.grey,
-                    ),
-                    Text(
-                      dailyList15?[currentIndex].fxDate ?? '',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.chevron_right),
-                      onPressed: currentIndex == 14 ? null : _nextDay,
-                      disabledColor: Colors.grey,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
+        child: dailyList15 == null || dailyList15!.isEmpty
+            ? Container(
+                constraints: BoxConstraints(minHeight: 200),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            : Column(
+                children: [
+                  // 城市名和日期选择器
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(widget.location.name,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.chevron_left),
+                            onPressed: currentIndex == 0 ? null : _previousDay,
+                            disabledColor: Colors.grey,
+                          ),
+                          Text(
+                            dailyList15?[currentIndex].fxDate ?? '',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.chevron_right),
+                            onPressed: currentIndex == dailyList15!.length - 1
+                                ? null
+                                : _nextDay,
+                            disabledColor: Colors.grey,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
 
-            // 当天天气
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '${dailyList15?[currentIndex].tempMax}°/${dailyList15?[currentIndex].tempMin}°',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    QIcon(
-                      iconCode: dailyList15?[currentIndex].iconDay ?? '',
-                      size: 24,
-                    ),
-                    Text(
-                      dailyList15?[currentIndex].textDay ?? '',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            // 当天详细气候数据
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildDailyDetailItem(
-                  '降水量',
-                  '${dailyList15?[currentIndex].precip ?? '0'}mm',
-                ),
-                _buildDailyDetailItem(
-                  '能见度',
-                  '${dailyList15?[currentIndex].vis ?? '0'}%',
-                ),
-                _buildDailyDetailItem(
-                  '湿度',
-                  '${dailyList15?[currentIndex].humidity ?? '0'}%',
-                ),
-              ],
-            ),
-          ],
-        ),
+                  // 当天天气
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '${dailyList15?[currentIndex].tempMax}°/${dailyList15?[currentIndex].tempMin}°',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          QIcon(
+                            iconCode: dailyList15?[currentIndex].iconDay ?? '',
+                            size: 24,
+                          ),
+                          Text(
+                            dailyList15?[currentIndex].textDay ?? '',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  // 当天详细气候数据
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildDailyDetailItem(
+                        '降水量',
+                        '${dailyList15?[currentIndex].precip ?? '0'}mm',
+                      ),
+                      _buildDailyDetailItem(
+                        '能见度',
+                        '${dailyList15?[currentIndex].vis ?? '0'}%',
+                      ),
+                      _buildDailyDetailItem(
+                        '湿度',
+                        '${dailyList15?[currentIndex].humidity ?? '0'}%',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
       ),
     );
   }

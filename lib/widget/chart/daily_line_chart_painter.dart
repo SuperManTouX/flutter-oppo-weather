@@ -9,10 +9,12 @@ class DailyLineChartPainter extends BaseTemperatureChartPainter<Daily> {
     required List<Daily> dailyData,
     required int selectedIndex,
     required double pointWidth,
+    required ColorScheme colorScheme,
   }) : super(
     data: dailyData,
     selectedIndex: selectedIndex,
     pointWidth: pointWidth,
+    colorScheme: colorScheme,
   );
 
   @override
@@ -65,16 +67,16 @@ class DailyLineChartPainter extends BaseTemperatureChartPainter<Daily> {
     // 创建温度线数据结构
     final maxLine = TemperatureLine(
       points: maxTempPoints,
-      lineColor: Colors.red,
-      pointColor: Colors.red,
+      lineColor: colorScheme.primary,
+      pointColor: colorScheme.primary,
       temperatureLabels: data.map((d) => '${d.tempMax}°').toList(),
       temperatureLabelAlign: TextAlign.center,
     );
 
     final minLine = TemperatureLine(
       points: minTempPoints,
-      lineColor: Colors.blue,
-      pointColor: Colors.blue,
+      lineColor: Colors.red,
+      pointColor: Colors.red,
       temperatureLabels: data.map((d) => '${d.tempMin}°').toList(),
       temperatureLabelAlign: TextAlign.end,
     );
@@ -93,6 +95,7 @@ class DailyLineChartPainter extends BaseTemperatureChartPainter<Daily> {
   @override
   bool shouldRepaint(covariant DailyLineChartPainter oldDelegate) {
     return oldDelegate.data != data ||
-        oldDelegate.selectedIndex != selectedIndex;
+        oldDelegate.selectedIndex != selectedIndex ||
+        oldDelegate.colorScheme != colorScheme;
   }
 }
