@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_oppo_weather/models/display_city.dart';
 import 'package:flutter_oppo_weather/models/weather/hourly.dart';
-import 'package:flutter_oppo_weather/pages/detail/interactive_temperature_chart.dart';
+import 'package:flutter_oppo_weather/widget/chart/interactive_temperature_chart.dart';
 import 'package:flutter_oppo_weather/services/weather/qweather_service.dart';
 import 'package:flutter_oppo_weather/utils/oppo_date_utils.dart';
 import 'package:jiffy/jiffy.dart';
@@ -25,8 +25,7 @@ class _HourlyTabContentState extends State<HourlyTabContent> {
     if (_hourlyData == null || _hourlyData!.isEmpty) {
       return Jiffy.now();
     }
-    final index = _lineSelectedIndex > -1 ? _lineSelectedIndex : 0;
-    final timeStr = _hourlyData![index].fxTime;
+    final timeStr = _hourlyData![_lineSelectedIndex].fxTime;
     if (timeStr.isEmpty) {
       return Jiffy.now();
     }

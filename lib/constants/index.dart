@@ -37,6 +37,9 @@ class GlobalConfig {
       Color.fromARGB(255, 97, 97, 97), // 结束颜色
     ],
   };
+
+
+  static const String DATE_PATTERN = "yyyy-MM-dd'T'HH:mmZ";
   static const Map<String, String> DETAIL_ICON = {
     "湿度": "humidity",
     "气压": "vis",
