@@ -43,6 +43,7 @@ class _MainContainerState extends State<MainContainer>
   // 天气页面透明度动画
   late Animation<double> _weatherOpacityAnimation;
 
+  // TODO(WIP):要直接使用cityList
   // 当前选中的城市信息
   String _currentLocation = '';
   String _currentCityName = '';
@@ -114,7 +115,7 @@ class _MainContainerState extends State<MainContainer>
     }
   }
 
-  // 从本地存储加载城市列表 - 从city_page.dart迁移而来
+  // 从本地存储加载城市列表 
   Future<void> _loadCityListFromStorage() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -144,6 +145,8 @@ class _MainContainerState extends State<MainContainer>
           if (_cityList.isNotEmpty) {
             _currentLocation = _cityList[_currentCityIndex].id;
             _currentCityName = _cityList[_currentCityIndex].name;
+            _initialLatitude = _cityList[_currentCityIndex].latitude;
+            _initialLongitude = _cityList[_currentCityIndex].longitude;
 
             // 初始化Page控制器
             _pageController = PageController(initialPage: _currentCityIndex);
@@ -310,6 +313,8 @@ class _MainContainerState extends State<MainContainer>
     setState(() {
       _currentLocation = city.id;
       _currentCityName = city.name;
+      _initialLatitude = city.latitude;
+      _initialLongitude = city.longitude;
       _currentState = isSearchResult
           ? PageState.resultWeather
           : PageState.pageViewWeather;

@@ -59,6 +59,7 @@ class _CityPageState extends State<CityPage> {
   bool _isMultiSelectMode = false;
   // 选中的城市ID列表
   Set<String> _selectedCityIds = {};
+  
   @override
   void initState() {
     super.initState();
@@ -368,7 +369,7 @@ class _CityPageState extends State<CityPage> {
             duration: Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             child: Container(
-              color: Colors.white,
+              color: Theme.of(context).scaffoldBackgroundColor,
               padding: EdgeInsets.all(10),
               child: Row(
                 children: [
@@ -567,6 +568,7 @@ class _CityPageState extends State<CityPage> {
             longitude: city.lon,
             now: null, // 初始时不包含天气数据
           );
+          print('点击搜索城市: ${displayCity.name}, ${displayCity.latitude}, ${displayCity.longitude}');
           // 调用回调函数传递城市信息
           widget.onCitySelect?.call(displayCity, true);
         },

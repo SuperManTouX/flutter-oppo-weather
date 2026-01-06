@@ -127,6 +127,7 @@ class _WeatherPageState extends State<WeatherPage> {
     _fetchWeatherForecast();
     // 自动获取24小时天气数据
     _fetchWeather24h();
+    print('初始化天气页面: ${widget.location.name}, ${widget.location.latitude}, ${widget.location.longitude}');
   }
 
   @override

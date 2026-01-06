@@ -36,6 +36,10 @@ class GlobalConfig {
       Color.fromARGB(255, 79, 80, 80), // 起始颜色
       Color.fromARGB(255, 97, 97, 97), // 结束颜色
     ],
+    "霾": [
+      Color.fromARGB(255, 79, 80, 80), // 起始颜色
+      Color.fromARGB(255, 97, 97, 97), // 结束颜色
+    ],
   };
 
 
